@@ -39,7 +39,7 @@
     gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);
     buffers[0] = buffer;
 
-    var vertexShaderCode = "attribute vec3 a_positionrt; void main(){ gl_Position = vec4(a_positionrt,1); } ";
+    var vertexShaderCode = "attribute vec3 a_position; void main(){ gl_Position = vec4(a_position,1); } ";
     var fragmentShaderCode = "precision mediump float; void main(){ gl_FragColor = vec4(1,0,0,1); } ";
 
     // createShader
