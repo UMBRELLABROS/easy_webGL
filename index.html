@@ -9,6 +9,8 @@
     <script src="js/attribute.js"></script>
     <script src="js/program.js"></script>
     <script src="js/functions.js"></script>
+    <script src="js/baseobject.js"></script>
+    <script src="js/triangle.js"></script>
     <link
   </head>
 
@@ -37,8 +39,10 @@
     catch(e) {alert('Exception init: '+e.toString());}
     if(!gl) {alert('Unable to create Web GL context');}
 
-    // Part 2 addNewWord 
-    var positions = [-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0];
+
+    // Part 2 addNewWord
+    var tr= new Triangle({ dimension: [0.4, 0.4, 0], position:[0.4, 0.4, 0],})     
+    var positions = tr.getCoords();  
    
     var attribute = new Attribute(gl);
     attribute.setTarget(gl.ARRAY_BUFFER);
