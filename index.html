@@ -39,11 +39,9 @@
 
     // Part 2 addNewWord 
     var positions = [-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0];
-   
-    var attribute = new Attribute(gl);
-    attribute.setTarget(gl.ARRAY_BUFFER);
-    attribute.setScrData(positions);
-
+          
+    var attribute = new Attribute(gl, "a_position", 1, gl.ARRAY_BUFFER, positions);
+    
     var vertexShaderCode = "attribute vec3 a_position; void main(){ gl_Position = vec4(a_position,1); } ";
     var fragmentShaderCode = "precision mediump float; void main(){ gl_FragColor = vec4(1,0,0,1); } ";
         
