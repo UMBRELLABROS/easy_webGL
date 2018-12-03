@@ -11,6 +11,10 @@
     <script src="js/functions.js"></script>
     <script src="js/baseobject.js"></script>
     <script src="js/triangle.js"></script>
+    <script src="js/item.js"></script>
+    <script src="js/scene.js"></script>
+    <script src="js/vertexshader.js"></script>
+    <script src="js/fragmentshader.js"></script>
     <link
   </head>
 
@@ -39,36 +43,30 @@
     catch(e) {alert('Exception init: '+e.toString());}
     if(!gl) {alert('Unable to create Web GL context');}
 
-
-    // Part 2 addNewWord
-    var tr= new Triangle({ dimension: [0.4, 0.4, 0], position:[0.4, 0.4, 0],})     
-    var positions = tr.getCoords();  
-   
-    var attribute = new Attribute(gl);
-    attribute.setTarget(gl.ARRAY_BUFFER);
-    attribute.setScrData(positions);
-
-    var vertexShaderCode = "attribute vec3 a_position; void main(){ gl_Position = vec4(a_position,1); } ";
-    var fragmentShaderCode = "precision mediump float; void main(){ gl_FragColor = vec4(1,0,0,1); } ";
-        
+    // Part 2 addNewWord   
+    var item1 = new Item(gl, new Triangle({ dimension: [0.4, 0.4, 0]}));
+           
     // createProgram
-    var program = new Program(gl);
-    program.setShader(vertexShaderCode, gl.VERTEX_SHADER);
-    program.setShader(fragmentShaderCode, gl.FRAGMENT_SHADER);
-    program.link();
-    
+    var scene = new Scene(gl, [item1]);
+        
     // Part 3 drawScene
-    program.use();    
+    scene.use();    
 
-    var attributeIndex = program.getAttributeLocation('a_position');
+    var attributes = item1.getAttributes();
+    var attribute;
+    for(var i = 0; i<attributes.length;i++){
+        if(attributes[i].getKind() == AttributeKind.POSITION){
+            attribute = attributes[i];
+        }
+    }
+
+    var attributeIndex = scene.getAttributeLocation(attribute.getName());
     attribute.setIndex(attributeIndex);
     attribute.enable();
-   
+      
     //drawTriangles
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-
+    item1.draw();
+    
     </script>
-
-
 
 </html>
