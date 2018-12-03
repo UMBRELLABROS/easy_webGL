@@ -1,8 +1,9 @@
 "use strict";
 var BaseObject = function(){
 
-    var position = [];        
-    var dimension = [];
+    var position = [0,0,0];        
+    var dimension = [0,0,0];
+    var kinds = [1];
     
     // geter, setter
     this.setPosition = function (newPosition){
@@ -31,4 +32,9 @@ var BaseObject = function(){
             }                
         }
     }     
+
+    this.hasKind = function(kind){
+        return kinds.indexOf(kind)==-1?false:true;
+    }
+    
 }

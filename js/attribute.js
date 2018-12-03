@@ -1,7 +1,8 @@
 "use strict";
-var Attribute = function(gl){
+var Attribute = function(gl, newName,  newKind, newTarget, newData){
     
     var attribute;
+    var kind;
     var name;
     var target = gl.ARRAY_BUFFER;
     var srcData;
@@ -12,10 +13,7 @@ var Attribute = function(gl){
     var normalized = false;
     var stride = 0;
     var offset = 0;
-
-    // constructor
-    attribute = gl.createBuffer();
-
+    
     // getter, setter
     this.setTarget = function(newTarget){
         target= newTarget;
@@ -41,11 +39,21 @@ var Attribute = function(gl){
 
     this.getName = function(){return name;}
 
+    this.setKind = function(newKind){kind = newKind;}
+
+    this.getKind = function(){return kind;}
+
     // functions 
     this.enable = function(){
         gl.enableVertexAttribArray(index);
         gl.vertexAttribPointer(index, size, type, normalized, stride, offset);
     }
 
+    // constructor
+    attribute = gl.createBuffer();
+    this.setName(newName);
+    this.setKind(newKind);
+    this.setTarget(newTarget);
+    this.setScrData(newData);
 
 }
