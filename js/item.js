@@ -1,25 +1,36 @@
 "use strict";
-var Item = function(gl, object3D){
+var Item = function(){
    
     var attributes = [];
-        
-    // constructor
-    if(object3D.hasKind(AttributeKind.POSITION)){
-        attributes.push(new Attribute(gl,
-            "a_position",
-            AttributeKind.POSITION,
-            gl.ARRAY_BUFFER,
-            object3D.getCoords()));
-    }
+    var uniforms = [];
+    var program;
 
     // getter, setter
-    this.getAttributes = function(){
-        return attributes;
-    }
-       
-    // functions
-    this.draw = function(){
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-    } 
-    
+    this.setProgram = function(newProgram){program = newProgram;} 
+    this.getProgram = function(){return program;}
+
+    this.setAttributes = function(newAttributes){attributes = newAttributes;} 
+    this.getAttributes = function(){return attributes;} 
+
+
 }
+var ItemService = function(prop,lights,camera){
+
+    this.create = function(prop,lights,camera){
+        var attributes = [];
+        var coords = prop.getCoords();
+        var position = prop.getPosition()||[0,0,0];
+
+        var coordsAttribute = new Attribute();
+        coordsAttribute.create("coords","a_coords",coords);
+        attributes.push(coordsAttribute);
+    }
+
+}   
+ItemService.prototype = new Item();
+
+            
+
+
+   
+    

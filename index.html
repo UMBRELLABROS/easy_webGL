@@ -15,6 +15,9 @@
     <script src="js/scene.js"></script>
     <script src="js/vertexshader.js"></script>
     <script src="js/fragmentshader.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/prop.js"></script>
+    <script src="js/director.js"></script>
     <link
   </head>
 
@@ -43,6 +46,21 @@
     catch(e) {alert('Exception init: '+e.toString());}
     if(!gl) {alert('Unable to create Web GL context');}
 
+
+
+    var director = new DirectorController(gl);
+
+    var prop = new Prop({coords:[  0,1,1, 0,-1,1, 0,1,-1  ]});
+
+    var scene = new Scene([prop],[],[]);
+
+    director.addScene([scene]);
+
+    director.action();
+
+
+
+    /*
     // Part 2 addNewWord   
     var item1 = new Item(gl, new Triangle({ dimension: [0.4, 0.4, 0]}));
            
@@ -66,6 +84,8 @@
       
     //drawTriangles
     item1.draw();
+
+    */
     
     </script>
 

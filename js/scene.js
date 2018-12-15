@@ -1,38 +1,33 @@
 "use strict";
-var Scene = function(gl, newItems){
+var Scene = function(newProps, newLights, newCameras){
 
-    var program;
-    var items = [];
-    var vertexShaderCode;
-    var fragmentShaderCode;
+    var props = [];
+    var lights = [];
+    var cameras = [];
+    
+    // getter, setter
+    this.setProps = function(newProps){props = newProps;}
+    
+    this.getProps = function(){return props;}
+
+    this.setLights = function(newLights){lights = newLights;}
+
+    this.getLights = function(){return lights;}
+
+    this.setCameras = function(newCameras){cameras = newCameras;}
+
+    this.getCameras = function(){return cameras;}
 
     // constructor
-    items = newItems;
-    program = new Program(gl);        
-    init();
-
-    // getter, setter
-    this.getItems = function(){
-        return items;
-    }
-
-    // functions
-    function init (){
-        var vertexShader = new VertexShader(newItems)
-        vertexShaderCode = vertexShader.getShaderCode();
-        var fragmentShader = new FragmentShader(newItems);
-        fragmentShaderCode = fragmentShader.getShaderCode();        
-        program.setShader(vertexShaderCode, gl.VERTEX_SHADER);
-        program.setShader(fragmentShaderCode, gl.FRAGMENT_SHADER);
-        program.link();
-    }
-
-    this.use = function(){
-        program.use();
-    }
-
-    this.getAttributeLocation = function(name){       
-        return program.getAttributeLocation(name);
-    }
+    this.setProps(newProps); 
+    this.setLights(newLights); 
+    this.setCameras(newCameras); 
 
 }
+
+var SceneService = function(){
+
+}
+SceneService.prototype = new Scene();
+
+    
