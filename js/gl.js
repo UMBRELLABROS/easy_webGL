@@ -7,13 +7,6 @@ var Gl = {
     setGl : function(newGl){this.gl = newGl;},
 
     // functions
-    setFloatAttribute : function(newData){
-        var buffer = this.gl.createBuffer(); 
-        var array = new Float32Array(newData);
-        this.gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        this.gl.bufferData(gl.ARRAY_BUFFER, array, gl.STATIC_DRAW);        
-    },
-
     createShader : function(shaderType, shaderCode){
         var shader = this.gl.createShader(
             shaderType==ShaderKind.VERTEX?this.gl.VERTEX_SHADER:this.gl.FRAGMENT_SHADER
@@ -49,6 +42,10 @@ var Gl = {
 	    this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);
     },
 
+    getAttributeLocation : function(program, name){
+        return this.gl.getAttribLocation(program, name);
+    },
+
     useProgram : function(newProgram){
         if(newProgram != this.program){
             this.program = newProgram;
@@ -59,7 +56,7 @@ var Gl = {
     activateAttribute : function(attribute){
         var location = attribute.getLocation();
         this.gl.enableVertexAttribArray(location);
-        this.gl.vertexAttribPointer(location, 3, gl.FLOAT, false, 0, 0);
+        this.gl.vertexAttribPointer(location, 3, this.gl.FLOAT, false, 0, 0);
     },
 
     draw :  function(){

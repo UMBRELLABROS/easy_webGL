@@ -12,7 +12,7 @@ var Director = function(){
     
 } 
 
-var DirectorController = function(gl){
+var DirectorController = function(canvas){
     
     // functions
     this.addScene = function(newScenes){
@@ -33,6 +33,9 @@ var DirectorController = function(gl){
     } 
 
     // constructor
+    try {var gl = canvas.getContext('webgl') }
+    catch(e) {alert('Exception init: '+e.toString());}
+    if(!gl) {alert('Unable to create Web GL context');}
     this.setGl(gl);
 
 }

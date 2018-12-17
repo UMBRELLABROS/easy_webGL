@@ -1,7 +1,7 @@
 "use strict";
 var Attribute = function(){
     
-    var location = 0;
+    var location;
     var kind;
     var name;    
     var srcData;      

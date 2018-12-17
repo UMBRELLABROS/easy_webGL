@@ -43,12 +43,8 @@
     title.className = "div_footer";
     div.appendChild(title);
     
-    try {var gl = canvas.getContext('webgl') }
-    catch(e) {alert('Exception init: '+e.toString());}
-    if(!gl) {alert('Unable to create Web GL context');}
-   
-
-    var director = new DirectorController(gl);
+    
+    var director = new DirectorController(canvas);
 
     var prop = new Prop({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
 
@@ -58,34 +54,6 @@
 
     director.action();
 
-
-
-    /*
-    // Part 2 addNewWord   
-    var item1 = new Item(gl, new Triangle({ dimension: [0.4, 0.4, 0]}));
-           
-    // createProgram
-    var scene = new Scene(gl, [item1]);
-        
-    // Part 3 drawScene
-    scene.use();    
-
-    var attributes = item1.getAttributes();
-    var attribute;
-    for(var i = 0; i<attributes.length;i++){
-        if(attributes[i].getKind() == AttributeKind.POSITION){
-            attribute = attributes[i];
-        }
-    }
-
-    var attributeIndex = scene.getAttributeLocation(attribute.getName());
-    attribute.setIndex(attributeIndex);
-    attribute.enable();
-      
-    //drawTriangles
-    item1.draw();
-
-    */
     
     </script>
 

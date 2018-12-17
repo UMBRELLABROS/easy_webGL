@@ -47,7 +47,11 @@ var ItemService = function(prop, lights, camera){
         var fragmentShader = new FragmentShaderService(this);
         var fragmentShaderCode = fragmentShader.getCode();
         var programService = new ProgramService();     
-        var program = programService.create(vertexShaderCode, fragmentShaderCode);   
+        var program = programService.create(vertexShaderCode, fragmentShaderCode);  
+        this.getAttributes().forEach(attribute => {
+            attribute.setLocation(Gl.getAttributeLocation(program, attribute.getName()));
+        }); 
+        
         this.setProgram(program);
     } 
 
