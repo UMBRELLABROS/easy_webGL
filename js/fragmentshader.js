@@ -1,33 +1,52 @@
 "use strict";
-var FragmentShader = function(items){
+var FragmentShader = function(){
     
+    var attributeColorName;
     var varyingNames = [];    
-    var shaderCode = "precision mediump float;\n";
-
-    // constructor      
-    buildVarying();
-    buildMain();
+    var code ;
 
     // getter, setter
-    this.getShaderCode = function(){
-        return shaderCode;
+    this.getCode = function(){return code;}
+    this.setCode = function(newCode){code = newCode;}
+
+    this.getVaryingNames = function(){return varyingNames;}
+    this.setVaryingNames = function(newVaryingNames){
+        varyingNames = newVaryingNames
     }
+
+    this.getAttributeColorName = function(){return attributeColorName;} 
+    this.setAttributeColorName = function(newAttributeColorName){
+        attributeColorName = newAttributeColorName;
+    }
+}
+
+var FragmentShaderService = function(item){    
 
     // functions
-    function buildVarying() {}
-
-    function buildMain(){
-        shaderCode += "void main(){\n";
-        shaderCode += buildInnerMain();
-        shaderCode += "}\n"
+    this.buildVarying = function() {
+        return "";
     }
 
-    function buildInnerMain(){
+    this.buildMain = function(){
         var text = "";
-        if(varyingNames.length == 0){
+        text += "void main(){\n";
+        text += this.buildInnerMain();
+        text += "}\n";
+        return text;
+    }
+
+    this.buildInnerMain = function(){
+        var text = "";
+        if( this.getVaryingNames.length == 0){
             text += "gl_FragColor = vec4(1,0,0,1);\n"
         }
         return text;
     }
 
+    // constructor  
+    var shaderCode =  "precision mediump float;\n"   
+    shaderCode += this.buildVarying();
+    shaderCode += this.buildMain();
+    this.setCode(shaderCode);
 }
+FragmentShaderService.prototype = new FragmentShader;

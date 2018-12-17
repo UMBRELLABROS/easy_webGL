@@ -1,17 +1,15 @@
 "use strict";
 var Director = function(){
-    var gl;
+    
     var worlds = [];
 
     // getter, setter
-    this.setGl = function(newGl){gl = newGl;}
+    this.setGl = function(newGl){Gl.setGl(newGl);}
 
     this.setWorlds = function(newWorlds) {worlds = newWorlds;}
 
     this.getWorlds = function(){return worlds;} 
-
-    // constructor
-    this.setGl(gl);
+    
 } 
 
 var DirectorController = function(gl){
@@ -28,8 +26,14 @@ var DirectorController = function(gl){
     } 
 
     this.action = function(){
+        this.getWorlds().forEach(world => {
+            world.draw();
+        });
 
     } 
+
+    // constructor
+    this.setGl(gl);
 
 }
 DirectorController.prototype = new Director;

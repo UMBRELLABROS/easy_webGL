@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />   
     <title>easy webGL Hallo Dreieck </title>
     <link href="css/style.css" rel="stylesheet">
-    <script src="js/attribute.js"></script>
-    <script src="js/program.js"></script>
+    <script src="js/gl.js"></script>
     <script src="js/functions.js"></script>
+    <script src="js/attribute.js"></script>
+    <script src="js/program.js"></script>    
     <script src="js/baseobject.js"></script>
     <script src="js/triangle.js"></script>
     <script src="js/item.js"></script>
@@ -42,15 +43,14 @@
     title.className = "div_footer";
     div.appendChild(title);
     
-    try {gl = canvas.getContext('webgl') }
+    try {var gl = canvas.getContext('webgl') }
     catch(e) {alert('Exception init: '+e.toString());}
     if(!gl) {alert('Unable to create Web GL context');}
-
-
+   
 
     var director = new DirectorController(gl);
 
-    var prop = new Prop({coords:[  0,1,1, 0,-1,1, 0,1,-1  ]});
+    var prop = new Prop({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
 
     var scene = new Scene([prop],[],[]);
 

@@ -28,6 +28,6 @@ var Scene = function(newProps, newLights, newCameras){
 var SceneService = function(){
 
 }
-SceneService.prototype = new Scene();
+SceneService.prototype = new Scene;
 
     

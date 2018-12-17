@@ -19,7 +19,7 @@ var Prop = function(newProp){
         if (newProp.hasOwnProperty(key)) {
             switch(key){
                 case "coords":
-                    this.setForm(newProp.coords);
+                    this.setCoords(newProp.coords);
                     break;
             }
             

@@ -1,31 +1,23 @@
 "use strict";
-var Program = function(gl){
+var Program = function(){
     
     var program;
     var index;
-   
-    // constructor
-    program = gl.createProgram();
 
     // getter, setter    
     this.setIndex = function(newIndex){index = newIndex;}
 
     this.getIndex = function(){return index;}
+}
+   
+var ProgramService = function(vertexShaderCode, fragmentShaderCode){
 
-    // functions 
-    this.setShader = function(newSource, newType){
-        var shader = gl.createShader(newType);
-        gl.shaderSource(shader, newSource);
-        gl.compileShader(shader);
-        gl.attachShader(program, shader);
-    }
+    this.create = function(vertexShaderCode, fragmentShaderCode){
+        var vertexShader = Gl.createShader(ShaderKind.VERTEX, vertexShaderCode);
+        var fragementShader = Gl.createShader(ShaderKind.FRAGMENT, fragmentShaderCode);
+        var program = Gl.createProgram(vertexShader, fragementShader);
+        return program;
+    }        
 
-    this.getAttributeLocation = function(name){
-        return gl.getAttribLocation(program, name);
-    }
-
-    this.use = function(){gl.useProgram(program);}
-
-    this.link = function(){gl.linkProgram(program);}
-
+   
 }

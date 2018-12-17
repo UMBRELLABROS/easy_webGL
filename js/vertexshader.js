@@ -1,52 +1,63 @@
 "use strict";
-var VertexShader = function(items){
+var VertexShader = function(){
     
-    var attributePositionNames = [];
+    var attributeCoordsName;
     var uniformNames = [];
-    var shaderCode = "";
-
-    // constructor
-    items.forEach(item => {
-        var attributes = item.getAttributes();
-        attributes.forEach(attribute =>{
-            if(attribute.getKind() == AttributeKind.POSITION){
-                if(attributePositionNames.indexOf(attribute.getName()) < 0){
-                    attributePositionNames.push(attribute.getName());
-                } 
-            }
-        })        
-    });
-    buildAttributes();
-    buildUniforms();
-    buildVarying();
-    buildMain();
+    var code = "";
 
     // getter, setter
-    this.getShaderCode = function(){
-        return shaderCode;
+    this.getCode = function(){
+        return code;
     }
+    this.setCode = function(newCode){code= newCode;}
 
-    // functions
-    function buildAttributes(){
-        attributePositionNames.forEach(attributeName => {
-            shaderCode += "attribute vec3 " + attributeName + ";\n"; 
-        })       
-    }
-    function buildUniforms() {}
-    function buildVarying() {}
-
-    function buildMain(){
-        shaderCode += "void main(){\n";
-        shaderCode += buildInnerMain();
-        shaderCode += "}\n";
-    }
-
-    function buildInnerMain(){
-        var text = "";
-        if(attributePositionNames.length == 1 && uniformNames.length == 0){
-            text += "gl_Position = vec4(" + attributePositionNames[0] + ",1);\n";
-        }
-        return text;
+    this.getAttributeCoordName = function(){return attributeCoordsName;}
+    this.setAttributeCoordName = function(newAttributeCoordName){ 
+        attributeCoordsName = newAttributeCoordName;
     }
 
 }
+
+var VertexShaderService = function(item){
+
+    this.buildAttributes = function (){
+        var text = "";    
+        // required    
+        text += "attribute vec3 " + this.getAttributeCoordName() + ";\n";  
+        return text;       
+    }
+    this.buildUniforms = function() {return "";}
+    this.buildVarying = function () {return "";}
+
+    this.buildMain = function (){
+        var text=""; 
+        text += "void main(){\n";
+        text += this.buildInnerMain();
+        text += "}\n";
+        return text;
+    }
+
+    this.buildInnerMain = function(){
+        var text = "";
+        
+        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";
+        
+        return text;
+    }
+
+    // constructor        
+    var attributes = item.getAttributes();
+    attributes.forEach(attribute =>{
+        if(attribute.getKind() == AttributeKind.COORDS){
+            this.setAttributeCoordName(attribute.getName());
+        }
+    })        
+    var shaderCode = "";
+    shaderCode += this.buildAttributes();
+    shaderCode += this.buildUniforms();
+    shaderCode += this.buildVarying();
+    shaderCode += this.buildMain();
+    this.setCode(shaderCode);
+
+}
+VertexShaderService.prototype = new VertexShader;
