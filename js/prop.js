@@ -1,5 +1,11 @@
 "use strict";
-var Prop = function(newProp){
+var Prop = function(){
+    
+       
+}
+
+var PropService = function(newProp){
+
     var coords;
     var color;
     var surface;
@@ -7,28 +13,16 @@ var Prop = function(newProp){
 
     // getter, setter
     this.setCoords = function(newCoords){coords = newCoords;}
-
     this.getCoords = function(){return coords;}
 
-    this.setPosition = function(newPosition){position = newPosition;}
-    
+    this.setPosition = function(newPosition){position = newPosition;}    
     this.getPosition = function(){return position;}
 
-    // constructor
-    for (var key in newProp) {
-        if (newProp.hasOwnProperty(key)) {
-            switch(key){
-                case "coords":
-                    this.setCoords(newProp.coords);
-                    break;
-            }
-            
-        }
-    }    
 
+    // constructor    
+    if (newProp.hasOwnProperty("coords")) {
+        this.setCoords(newProp.coords);                 
+    }
+    
 }
-
-var PropService = function(){
-
-}
-PropService.prototype = new Prop();
+PropService.prototype = new Prop;

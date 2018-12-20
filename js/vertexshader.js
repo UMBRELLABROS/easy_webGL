@@ -1,19 +1,18 @@
 "use strict";
 var VertexShader = function(){
     
-    var attributeCoordsName;
-    var uniformNames = [];
-    var code = "";
+    this.attributeCoordsName;    
+    this.code = "";
 
     // getter, setter
     this.getCode = function(){
-        return code;
+        return this.code;
     }
-    this.setCode = function(newCode){code= newCode;}
+    this.setCode = function(newCode){this.code= newCode;}
 
-    this.getAttributeCoordName = function(){return attributeCoordsName;}
+    this.getAttributeCoordName = function(){return this.attributeCoordsName;}
     this.setAttributeCoordName = function(newAttributeCoordName){ 
-        attributeCoordsName = newAttributeCoordName;
+        this.attributeCoordsName = newAttributeCoordName;
     }
 
 }

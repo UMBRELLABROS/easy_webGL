@@ -1,26 +1,26 @@
 "use strict";
 var FragmentShader = function(){
     
-    var attributeColorName;
-    var varyingNames = [];    
-    var code ;
+    this.attributeColorName;       
+    this.code ;
 
     // getter, setter
-    this.getCode = function(){return code;}
-    this.setCode = function(newCode){code = newCode;}
-
-    this.getVaryingNames = function(){return varyingNames;}
-    this.setVaryingNames = function(newVaryingNames){
-        varyingNames = newVaryingNames
-    }
-
-    this.getAttributeColorName = function(){return attributeColorName;} 
+    this.getCode = function(){return this.code;}
+    this.setCode = function(newCode){this.code = newCode;}
+    
+    this.getAttributeColorName = function(){return this.attributeColorName;} 
     this.setAttributeColorName = function(newAttributeColorName){
-        attributeColorName = newAttributeColorName;
+        this.attributeColorName = newAttributeColorName;
     }
 }
 
 var FragmentShaderService = function(item){    
+
+    var varyingNames = [];
+    this.getVaryingNames = function(){return varyingNames;}
+    this.setVaryingNames = function(newVaryingNames){
+        varyingNames = newVaryingNames;
+    }
 
     // functions
     this.buildVarying = function() {

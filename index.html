@@ -46,9 +46,24 @@
     
     var director = new DirectorController(canvas);
 
-    var prop = new Prop({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
+    var prop1 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
+    
 
-    var scene = new Scene([prop],[],[]);
+    var prop2 = new PropService({coords:[
+        -0.25+0.6,
+        -0.25, 
+        0,
+        0.25+0.6,
+        -0.25,
+        0,
+        0+0.6,
+        0.25,
+        0]});
+ 
+    var prop3 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
+
+    var scene = new SceneService([prop1, prop3, prop2],[],[]);
+
 
     director.addScene([scene]);
 

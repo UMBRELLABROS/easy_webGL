@@ -1,47 +1,54 @@
 "use strict";
 var Item = function(){
    
-    var attributes = [];
-    var uniforms = [];
-    var program;
+    
+    // attributes
+    // uniforms
+    this.program;
 
     // getter, setter
-    this.setProgram = function(newProgram){program = newProgram;} 
-    this.getProgram = function(){return program;}
-
-    this.setAttributes = function(newAttributes){attributes = newAttributes;} 
-    this.getAttributes = function(){return attributes;} 
-
-
+    this.setProgram = function(newProgram){this.program = newProgram;} 
+    this.getProgram = function(){return this.program;}
+    
 }
-var ItemService = function(prop, lights, camera){
+var ItemService = function(){
+
+    var attributes = [];
+    var uniforms = [];
+
+    this.setAttributes = function(newAttributes){
+        attributes = newAttributes;                 
+    } 
+    this.getAttributes = function(){return attributes;} 
+    
 
     this.equals = function(newItem){
         var cntFound = 0
         var newAttributes = newItem.getAttributes();
-        attributes.forEach(attribute => {
+        this.getAttributes().forEach(attribute => {
             newAttributes.forEach(newAttribute => {
                 if(attribute.equals(newAttribute)) cntFound++;            
             });            
         });
         // TODO: check uniforms
-        return cntFound == attributes.length;
+        return cntFound == this.getAttributes().length;
     }
 
-    this.create = function(prop, lights, camera){
-        var attributes = [];
+    this.create = function(prop, lights, camera){        
         var coords = prop.getCoords();
         var position = prop.getPosition()||[0,0,0];
-
-        var coordsAttribute = new AttributeService();
-        coordsAttribute.create(AttributeKind.COORDS,"a_coords",coords);
-        attributes.push(coordsAttribute);
-
-        this.setAttributes(attributes);
+       
+        var coordsAttribute = new AttributeService();               
+        coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
+        this.getAttributes().push(coordsAttribute);
+    
     }
 
     this.createProgram = function(newProgram){
-        if(newProgram != null) return newProgram;
+        if(newProgram != null){
+            this.setProgram(newProgram);
+            return;
+        } 
         var vertexShader = new VertexShaderService(this);
         var vertexShaderCode = vertexShader.getCode();
         var fragmentShader = new FragmentShaderService(this);

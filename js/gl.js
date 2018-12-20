@@ -32,6 +32,14 @@ var Gl = {
         return program;
     },
 
+    getTarget : function(newTarget){
+        var target = this.gl.ARRAY_BUFFER; 
+        if( newTarget == TargetKind.ELEMENT_ARRAY_BUFFER){
+            target = this.gl.ELEMENT_ARRAY_BUFFER;
+        }
+        return target;
+    },
+
     createBuffer : function(attribute){
         var	buffer = this.gl.createBuffer();
         var target = this.gl.ARRAY_BUFFER; 
@@ -39,14 +47,15 @@ var Gl = {
             target = this.gl.ELEMENT_ARRAY_BUFFER;
         }
 	    this.gl.bindBuffer(target, buffer);
-	    this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);
+        this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);
+        return buffer;
     },
 
     getAttributeLocation : function(program, name){
         return this.gl.getAttribLocation(program, name);
     },
 
-    useProgram : function(newProgram){
+    useProgram : function(newProgram){        
         if(newProgram != this.program){
             this.program = newProgram;
             this.gl.useProgram(this.program);
@@ -55,6 +64,7 @@ var Gl = {
 
     activateAttribute : function(attribute){
         var location = attribute.getLocation();
+        this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
         this.gl.enableVertexAttribArray(location);
         this.gl.vertexAttribPointer(location, 3, this.gl.FLOAT, false, 0, 0);
     },

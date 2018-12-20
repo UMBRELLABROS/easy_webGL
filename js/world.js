@@ -1,58 +1,53 @@
 "use strict";
 var World = function(){
-    var items = [];
-    
-    // getter, setter
-    this.setItems = function(newItems){items = newItems;}
-
-    this.getItems = function(){return items;}
-
-    // constructor
     
 
 }
 
 var WorldService = function(){
 
+    var items = [];
+    
+    // getter, setter
+    this.getItems = function(){return items;}
+    this.setItems = function(newItems){items = newItems;}
+
+
     this.createItems = function(newScene){
-        // build items from scene
-        var items= [];
+        // build items from scene        
         var props = newScene.getProps();
         var lights = newScene.getLights();
         var cameras = newScene.getCameras();
-
-        props.forEach(prop => {
+        
+        props.forEach(prop => {    
             if(cameras.length > 0){
                 cameras.forEach(camera =>{
-                    var item = this.createItem(prop, lights, camera);
+                    var item = new ItemService();       
+                    item.create(prop, lights, camera); 
                     var program = this.getProgram(item);
-                    item.createProgram(program);                    
-                    items.push(item);
+                    item.createProgram(program);   
+                    this.getItems().push(item);                                       
                 });
             }
-            else{
-                var item = this.createItem(prop, lights, []);
+            else{                                   
+                var item = new ItemService();       
+                item.create( prop, lights, []);   
                 var program = this.getProgram(item);
                 item.createProgram(program); 
-                items.push(item);
+                this.getItems().push(item);
             }
-        });
-        this.setItems(items);
+        });  
 
-    }
-
-    this.createItem = function(prop, lights, camera){ 
-        var item = new ItemService();       
-        item.create(prop,lights,camera);        
-        return item;
-    }
+           
+    }   
 
     this.getProgram = function(newItem){
-        this.getItems().forEach(item => {
-            if(item.equals(newItem)){
-                return item.getProgram();
+        var items = this.getItems();
+        for(var i=0; i<items.length;i++){
+            if(items[i].equals(newItem)){
+                return items[i].getProgram();
             }
-        });
+        };
         return null;
     }
 

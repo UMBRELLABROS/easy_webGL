@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />   
+    <title>Test </title>    
+    <link
+  </head>
+
+  <body> 
+    
+         
+    
+  </body>
+<script>
+var Attribute = function(){
+
+    var staticNum;
+    this.getStaticNum = function(){return staticNum;}
+    this.setStaticNum = function(newStaticNum){staticNum = newStaticNum;}
+
+    this.num;
+    this.getNum = function(){return this.num;}
+    this.setNum = function(newNum){this.num = newNum;}
+
+    this.source1 = [];
+    this.getSource1 = function(){return source1;}
+    this.setSource1 = function(newSource){source1 = newSource;} 
+
+    this.obj = {data:null};
+    this.getObj = function(){return this.obj.data;}
+    this.setObj = function(newData){this.obj.data = newData;}
+    
+    
+}
+var AttributeService = function(){
+     
+  var source2 = [];
+  this.getSource2 = function(){return source2;}
+  this.setSource2 = function(newSource){source2 = newSource;}
+}
+AttributeService.prototype = new Attribute();
+
+var Item = function(){
+    this.attributes = [];
+
+    this.setAttributes = function(newAttributes){this.attributes = newAttributes;}
+    this.getAttributes = function(){return this.attributes;}
+    
+    this.check = function(){
+        this.attributes.forEach(attribute =>{
+            console.log("SOURCE1 : " + attribute.getSource1());
+            console.log("SOURCE2 : " + attribute.getSource2());
+            console.log("STATIC_NUM : " + attribute.getStaticNum());
+            console.log("NUM : " + attribute.getNum());
+            console.log("OBJ : " + attribute.getObj());
+        })
+    }
+}
+
+var attribute1 = new AttributeService();
+attribute1.setSource1([1,2,3]);
+attribute1.setSource2([1,2,3]);
+attribute1.setNum(10);
+attribute1.setStaticNum(1000);
+attribute1.setObj([12,13,14]);
+
+var attribute2 = new AttributeService();
+attribute2.setSource1([4,5,6]);
+attribute2.setSource2([4,5,6]);
+attribute2.setNum(20);
+attribute1.setStaticNum(2000);
+// attribute2.num(21); // error
+attribute2.setObj([15,16,17]);
+
+var attribute3 = new AttributeService();
+attribute3.setSource1([7,8]);
+
+var attribute4 = new AttributeService();
+attribute4.setSource1([9,10]);
+
+
+var item1 = new Item();
+item1.getAttributes().push(attribute1);
+item1.getAttributes().push(attribute2);
+item1.check();
+
+var item2 = new Item();
+item2.getAttributes().push(attribute3);
+item2.getAttributes().push(attribute4);
+item2.check();
+
+
+
+</script>
+
+  </head>
+</html>

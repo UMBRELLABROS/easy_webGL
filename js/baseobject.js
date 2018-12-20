@@ -1,25 +1,25 @@
 "use strict";
 var BaseObject = function(){
 
-    var position = [0,0,0];        
-    var dimension = [0,0,0];
-    var kinds = [AttributeKind.POSITION];
+    this.position = [0,0,0];        
+    this.dimension = [0,0,0];
+    this.kinds = [AttributeKind.POSITION];
     
     // geter, setter
     this.setPosition = function (newPosition){
-        position[0] = newPosition[0];
-        position[1] = newPosition[1];
-        position[2] = newPosition[2];
+        this.position[0] = newPosition[0];
+        this.position[1] = newPosition[1];
+        this.position[2] = newPosition[2];
     }
-    this.getPosition = function(){return position;}
+    this.getPosition = function(){return this.position;}
 
     this.setDimension = function(newDimension){
-        dimension[0] = newDimension[0];
-        dimension[1] = newDimension[1];
-        dimension[2] = newDimension[2];        
+        this.dimension[0] = newDimension[0];
+        this.dimension[1] = newDimension[1];
+        this.dimension[2] = newDimension[2];        
     }
 
-    this.getDimension = function() {return dimension};
+    this.getDimension = function() {return this.dimension};
 
     // functions
     this.parseParams = function(params) {
