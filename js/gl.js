@@ -2,6 +2,7 @@
 var Gl = {
     gl : null,
     program : null,
+    attributes: [],    
 
     // getter, setter
     setGl : function(newGl){this.gl = newGl;},
@@ -41,14 +42,32 @@ var Gl = {
     },
 
     createBuffer : function(attribute){
+        var foundAttribute = null;
+        this.getAttributes().forEach(localAttribute => {
+            if(attribute.equals(localAttribute) && 
+            attribute.getSrcData().equals(localAttribute.getSrcData())){                
+                foundAttribute = localAttribute;   
+                return;                        
+            }    
+        });      
+        if (foundAttribute != null) 
+            return foundAttribute.getBuffer();
+
         var	buffer = this.gl.createBuffer();
         var target = this.gl.ARRAY_BUFFER; 
         if( attribute.getTarget()==TargetKind.ELEMENT_ARRAY_BUFFER){
             target = this.gl.ELEMENT_ARRAY_BUFFER;
         }
 	    this.gl.bindBuffer(target, buffer);
-        this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);
+        this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);     
+        
+        this.getAttributes().push(attribute);   
+
         return buffer;
+    },
+
+    getAttributes : function(){
+        return this.attributes;
     },
 
     getAttributeLocation : function(program, name){

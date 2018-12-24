@@ -40,8 +40,9 @@ var ItemService = function(){
        
         var coordsAttribute = new AttributeService();               
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
+        coordsAttribute.createBuffer();
         this.getAttributes().push(coordsAttribute);
-    
+
     }
 
     this.createProgram = function(newProgram){

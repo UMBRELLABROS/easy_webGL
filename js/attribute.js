@@ -31,7 +31,7 @@ var Attribute = function(){
 
 var AttributeService = function(){
 
-    var srcData;      
+    var srcData = [];      
     this.setSrcData = function(newSrcData){
         switch(this.kind){
             case "index":
@@ -54,7 +54,10 @@ var AttributeService = function(){
     this.create = function(newKind, newName, newData){        
         this.setKind(newKind);
         this.setName(newName);
-        this.setSrcData(newData);
+        this.setSrcData(newData);        
+    }
+
+    this.createBuffer = function(){                  
         this.setBuffer(Gl.createBuffer(this));
     }
 

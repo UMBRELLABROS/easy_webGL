@@ -14,6 +14,17 @@ Array.prototype.equals = function (array) {
     return true;
 }
 
+Float32Array.prototype.equals = function (array){
+    if (!array)
+        return false;
+    if (this.length != array.length)
+        return false;
+    for (var i = 0, l=this.length; i < l; i++) {
+        if (this[i] != array[i]) return false;        
+    }       
+    return true;
+}
+
 var AttributeKind = Object.freeze({"NONE":0,
             "COORDS":1, 
             "COLOR":2,
