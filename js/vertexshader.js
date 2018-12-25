@@ -37,10 +37,8 @@ var VertexShaderService = function(item){
     }
 
     this.buildInnerMain = function(){
-        var text = "";
-        
-        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";
-        
+        var text = "";        
+        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";        
         return text;
     }
 

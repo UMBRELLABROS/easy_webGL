@@ -88,6 +88,20 @@ var Gl = {
         this.gl.vertexAttribPointer(location, 3, this.gl.FLOAT, false, 0, 0);
     },
 
+    getUniformLocation : function(program, name){
+        return this.gl.getUniformLocation(program, name);
+    },
+
+    activateUniform : function(uniform){
+        switch(uniform.getKind()){
+            case UniformKind.COLOR:
+                this.gl.uniform4f(uniform.getLocation(),
+                uniform.getValue()[0],uniform.getValue()[1],
+                uniform.getValue()[2],uniform.getValue()[3]);
+            break;
+        }
+    },
+
     draw :  function(){
         this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
     }

@@ -4,11 +4,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />   
-    <title>easy webGL Hallo Dreieck </title>
+    <title>easy webGL Dreieck mit Farbe </title>
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/attribute.js"></script>
+    <script src="js/uniform.js"></script>
     <script src="js/program.js"></script>    
     <script src="js/baseobject.js"></script>
     <script src="js/triangle.js"></script>
@@ -46,7 +47,8 @@
     
     var director = new DirectorController(canvas);
 
-    var prop1 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
+    var prop1 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0],
+    color:[0.0,0.5,1.0,1.0]});
     
 
     var prop2 = new PropService({coords:[
@@ -58,11 +60,11 @@
         0,
         0+0.6,
         0.25,
-        0]});
- 
-    var prop3 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0]});
+        0],
+        color:[0.6,0.6,0.6,1.0]});
+     
 
-    var scene = new SceneService([prop1, prop3, prop2],[],[]);
+    var scene = new SceneService([prop2, prop1],[],[]);
 
 
     director.addScene([scene]);

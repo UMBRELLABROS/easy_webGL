@@ -1,7 +1,6 @@
 "use strict";
 var Item = function(){
-   
-    
+       
     // attributes
     // uniforms
     this.program;
@@ -20,6 +19,11 @@ var ItemService = function(){
         attributes = newAttributes;                 
     } 
     this.getAttributes = function(){return attributes;} 
+
+    this.setUniforms = function(newUniforms){
+        uniforms = newUniforms;                 
+    } 
+    this.getUniforms = function(){return uniforms;} 
     
 
     this.equals = function(newItem){
@@ -36,6 +40,7 @@ var ItemService = function(){
 
     this.create = function(prop, lights, camera){        
         var coords = prop.getCoords();
+        var color = prop.getColor();
         var position = prop.getPosition()||[0,0,0];
        
         var coordsAttribute = new AttributeService();               
@@ -43,23 +48,34 @@ var ItemService = function(){
         coordsAttribute.createBuffer();
         this.getAttributes().push(coordsAttribute);
 
+        if(color != null){
+            var colorUniform = new UniformService();
+            colorUniform.create(UniformKind.COLOR, "u_color", color);
+            this.getUniforms().push(colorUniform);            
+        }
+
+
     }
 
     this.createProgram = function(newProgram){
+        var program;
         if(newProgram != null){
-            this.setProgram(newProgram);
-            return;
+            program = newProgram;            
         } 
-        var vertexShader = new VertexShaderService(this);
-        var vertexShaderCode = vertexShader.getCode();
-        var fragmentShader = new FragmentShaderService(this);
-        var fragmentShaderCode = fragmentShader.getCode();
-        var programService = new ProgramService();     
-        var program = programService.create(vertexShaderCode, fragmentShaderCode);  
+        else{
+            var vertexShader = new VertexShaderService(this);
+            var vertexShaderCode = vertexShader.getCode();
+            var fragmentShader = new FragmentShaderService(this);
+            var fragmentShaderCode = fragmentShader.getCode();
+            var programService = new ProgramService();     
+            program = programService.create(vertexShaderCode, fragmentShaderCode);  
+        }
         this.getAttributes().forEach(attribute => {
             attribute.setLocation(Gl.getAttributeLocation(program, attribute.getName()));
         }); 
-        
+        this.getUniforms().forEach(uniform => {
+            uniform.setLocation(Gl.getUniformLocation(program, uniform.getName()));
+        });        
         this.setProgram(program);
     } 
 
@@ -70,8 +86,11 @@ var ItemService = function(){
             attribute.activate();
         });
 
-        Gl.draw();
+        this.getUniforms().forEach(uniform => {           
+            uniform.activate();            
+        });
 
+        Gl.draw();
     }
 
 }   

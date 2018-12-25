@@ -1,6 +1,7 @@
 "use strict";
 var FragmentShader = function(){
     
+    this.uniformColorName = null;
     this.attributeColorName;       
     this.code ;
 
@@ -12,17 +13,38 @@ var FragmentShader = function(){
     this.setAttributeColorName = function(newAttributeColorName){
         this.attributeColorName = newAttributeColorName;
     }
+
+    this.getUniformColorName = function(){return this.uniformColorName;} 
+    this.setUniformColorName = function(newUniformColorName){
+        this.uniformColorName = newUniformColorName;
+    }
 }
 
 var FragmentShaderService = function(item){    
 
-    var varyingNames = [];
-    this.getVaryingNames = function(){return varyingNames;}
-    this.setVaryingNames = function(newVaryingNames){
-        varyingNames = newVaryingNames;
+    var varyings = [];
+    var uniforms = [];
+
+    this.getVaryings = function(){return varyings;}
+    this.setVaryings = function(newVaryings){
+        varyings = newVaryings;
+    }
+
+    this.getUniforms = function(){return uniforms;}
+    this.setUniforms = function(newUniforms){
+        uniforms = newUniforms;
     }
 
     // functions
+
+    this.buildUniforms = function() {
+        var text = "";
+        if(this.getUniformColorName()!=null){            
+            text += "uniform vec4 " + this.getUniformColorName() + ";\n";
+        }
+        return text;
+    }
+
     this.buildVarying = function() {
         return "";
     }
@@ -37,14 +59,32 @@ var FragmentShaderService = function(item){
 
     this.buildInnerMain = function(){
         var text = "";
-        if( this.getVaryingNames.length == 0){
+        if( this.getVaryings().length == 0 &&
+            this.getUniforms().length == 0){
             text += "gl_FragColor = vec4(1,0,0,1);\n"
+        }
+        if( this.getVaryings().length == 0 &&
+            this.getUniforms().length > 0){
+                this.getUniforms().forEach(uniform => {
+                    if(uniform.getKind() == UniformKind.COLOR){
+                        text += "gl_FragColor = " + uniform.getName() + ";\n";        
+                    }                    
+                });
+            
         }
         return text;
     }
 
     // constructor  
+    this.setUniforms(item.getUniforms());
+    this.getUniforms().forEach(uniform =>{
+        if(uniform.getKind() == UniformKind.COLOR){
+            this.setUniformColorName(uniform.getName());
+        }
+    })  
+
     var shaderCode =  "precision mediump float;\n"   
+    shaderCode += this.buildUniforms();
     shaderCode += this.buildVarying();
     shaderCode += this.buildMain();
     this.setCode(shaderCode);
