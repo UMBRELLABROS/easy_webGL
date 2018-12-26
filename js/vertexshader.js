@@ -2,6 +2,7 @@
 var VertexShader = function(){
     
     this.attributeCoordsName;    
+    this.attributeColorName = null;
     this.code = "";
 
     // getter, setter
@@ -15,6 +16,11 @@ var VertexShader = function(){
         this.attributeCoordsName = newAttributeCoordName;
     }
 
+    this.getAttributeColorName = function(){return this.attributeColorName;}
+    this.setAttributeColorName = function(newAttributeColorName){ 
+        this.attributeColorName = newAttributeColorName;
+    }
+
 }
 
 var VertexShaderService = function(item){
@@ -23,10 +29,21 @@ var VertexShaderService = function(item){
         var text = "";    
         // required    
         text += "attribute vec3 " + this.getAttributeCoordName() + ";\n";  
+        if(this.getAttributeColorName() != null){
+            text += "attribute vec4 " + this.getAttributeColorName() + ";\n";                     
+        }
         return text;       
     }
+
     this.buildUniforms = function() {return "";}
-    this.buildVarying = function () {return "";}
+
+    this.buildVarying = function () {
+        var text = "";   
+        if(this.getAttributeColorName() != null){            
+            text += "varying vec4 " + this.getAttributeColorName().replace("a_", "v_") + ";\n";           
+        }        
+        return text;
+    }
 
     this.buildMain = function (){
         var text=""; 
@@ -38,7 +55,11 @@ var VertexShaderService = function(item){
 
     this.buildInnerMain = function(){
         var text = "";        
-        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";        
+        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n"; 
+        if(this.getAttributeColorName() != null){
+            text += this.getAttributeColorName().replace("a_", "v_") + 
+                  "=" + this.getAttributeColorName() + ";\n";
+        }       
         return text;
     }
 
@@ -47,6 +68,9 @@ var VertexShaderService = function(item){
     attributes.forEach(attribute =>{
         if(attribute.getKind() == AttributeKind.COORDS){
             this.setAttributeCoordName(attribute.getName());
+        }
+        if(attribute.getKind() == AttributeKind.COLOR){
+            this.setAttributeColorName(attribute.getName());
         }
     })        
     var shaderCode = "";

@@ -85,7 +85,7 @@ var Gl = {
         var location = attribute.getLocation();
         this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
         this.gl.enableVertexAttribArray(location);
-        this.gl.vertexAttribPointer(location, 3, this.gl.FLOAT, false, 0, 0);
+        this.gl.vertexAttribPointer(location, attribute.getSize(), this.gl.FLOAT, false, 0, 0);
     },
 
     getUniformLocation : function(program, name){

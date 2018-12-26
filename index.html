@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />   
-    <title>easy webGL Dreieck mit Farbe </title>
+    <title>easy webGL Dreieck mit Farbverlauf </title>
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
     <script src="js/functions.js"></script>
@@ -48,7 +48,9 @@
     var director = new DirectorController(canvas);
 
     var prop1 = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0],
-    color:[0.0,0.5,1.0,1.0]});
+    colorArray:[1.0,0.0,0.0,1.0,
+                0.0,1.0,0.0,1.0,
+                0.0,0.0,1.0,1.0]});
     
 
     var prop2 = new PropService({coords:[
@@ -64,7 +66,7 @@
         color:[0.6,0.6,0.6,1.0]});
      
 
-    var scene = new SceneService([prop2, prop1],[],[]);
+    var scene = new SceneService([prop1, prop2],[],[]);
 
 
     director.addScene([scene]);

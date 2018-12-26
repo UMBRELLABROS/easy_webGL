@@ -41,6 +41,7 @@ var ItemService = function(){
     this.create = function(prop, lights, camera){        
         var coords = prop.getCoords();
         var color = prop.getColor();
+        var colorArray = prop.getColorArray();
         var position = prop.getPosition()||[0,0,0];
        
         var coordsAttribute = new AttributeService();               
@@ -52,6 +53,14 @@ var ItemService = function(){
             var colorUniform = new UniformService();
             colorUniform.create(UniformKind.COLOR, "u_color", color);
             this.getUniforms().push(colorUniform);            
+        }
+
+        if(colorArray != null){
+            var colorAttribute = new AttributeService();
+            colorAttribute.create(AttributeKind.COLOR, "a_color", colorArray);
+            colorAttribute.createBuffer();
+            colorAttribute.setSize(4); //r,g,b,a
+            this.getAttributes().push(colorAttribute);            
         }
 
 

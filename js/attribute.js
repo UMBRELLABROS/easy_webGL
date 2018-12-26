@@ -6,6 +6,7 @@ var Attribute = function(){
     this.name;        
     this.target;   
     this.buffer;
+    this.size = 3;
     // srcData
     var cnt;
     
@@ -21,6 +22,9 @@ var Attribute = function(){
 
     this.setKind = function(newKind){this.kind = newKind;}
     this.getKind = function(){return this.kind;}
+
+    this.setSize = function(newSize){this.size = newSize;}
+    this.getSize = function(){return this.size;}
 
     this.getBuffer = function(){return this.buffer;}
     this.setBuffer = function(newBuffer){this.buffer = newBuffer;}

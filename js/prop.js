@@ -8,6 +8,7 @@ var PropService = function(newProp){
 
     var coords;
     var color = null;
+    var colorArray = null;
     var surface = null;
     var position = null;
 
@@ -21,6 +22,9 @@ var PropService = function(newProp){
     this.getColor = function(){return color;}
     this.setColor = function(newColor){color = newColor;}
 
+    this.getColorArray = function(){return colorArray;}
+    this.setColorArray = function(newColorArray){colorArray = newColorArray;}
+
 
     // constructor    
     if (newProp.hasOwnProperty("coords")) {
@@ -28,6 +32,9 @@ var PropService = function(newProp){
     }
     if (newProp.hasOwnProperty("color")) {
         this.setColor(newProp.color);                 
+    }
+    if (newProp.hasOwnProperty("colorArray")) {
+        this.setColorArray(newProp.colorArray);                 
     }
     
 }
