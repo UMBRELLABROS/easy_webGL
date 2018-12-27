@@ -42,7 +42,7 @@ var ItemService = function(){
         var coords = prop.getCoords();
         var color = prop.getColor();
         var colorArray = prop.getColorArray();
-        var position = prop.getPosition()||[0,0,0];
+        var position = prop.getPosition();
        
         var coordsAttribute = new AttributeService();               
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
@@ -63,6 +63,23 @@ var ItemService = function(){
             this.getAttributes().push(colorAttribute);            
         }
 
+        if(position != null){
+            var matrixUniform = new UniformService();
+
+            var identityMatrix = [1,0,0,0,
+                                0,1,0,0,
+                                0,0,1,0,
+                                0,0,0,1];
+            var matrix = identityMatrix;
+            if(position != null){
+                matrix[12]=position[0];
+                matrix[13]=position[1];
+                matrix[14]=position[2];
+            }
+
+            matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
+            this.getUniforms().push(matrixUniform);            
+        }
 
     }
 
@@ -79,6 +96,8 @@ var ItemService = function(){
             var programService = new ProgramService();     
             program = programService.create(vertexShaderCode, fragmentShaderCode);  
         }
+        var test  = Gl.getAttributeLocation(program,"a_color");
+
         this.getAttributes().forEach(attribute => {
             attribute.setLocation(Gl.getAttributeLocation(program, attribute.getName()));
         }); 

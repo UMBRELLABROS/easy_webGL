@@ -18,8 +18,10 @@ var Gl = {
         if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {            
             throw "Error in shader:" + shaderType + this.gl.getShaderInfoLog(shader);
         }
+
+        var source = this.gl.getShaderSource(shader);
         return shader;
-    },
+    },   
 
     createProgram : function(vertexShader, fragmentShader){
         var program = this.gl.createProgram();        
@@ -98,6 +100,9 @@ var Gl = {
                 this.gl.uniform4f(uniform.getLocation(),
                 uniform.getValue()[0],uniform.getValue()[1],
                 uniform.getValue()[2],uniform.getValue()[3]);
+            break;
+            case UniformKind.MATRIX:
+                this.gl.uniformMatrix4fv(uniform.getLocation(), false, uniform.getValue());
             break;
         }
     },

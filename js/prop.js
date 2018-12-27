@@ -36,6 +36,9 @@ var PropService = function(newProp){
     if (newProp.hasOwnProperty("colorArray")) {
         this.setColorArray(newProp.colorArray);                 
     }
+    if (newProp.hasOwnProperty("position")) {
+        this.setPosition(newProp.position);                 
+    }
     
 }
 PropService.prototype = new Prop;

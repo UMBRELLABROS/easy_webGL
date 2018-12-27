@@ -3,6 +3,7 @@ var VertexShader = function(){
     
     this.attributeCoordsName;    
     this.attributeColorName = null;
+    this.uniformMatrixName = null;
     this.code = "";
 
     // getter, setter
@@ -21,21 +22,37 @@ var VertexShader = function(){
         this.attributeColorName = newAttributeColorName;
     }
 
+    this.getUniformMatrixName = function(){return this.uniformMatrixName;}
+    this.setUniformMatrixName = function(newUniformMatrixName){ 
+        this.uniformMatrixName = newUniformMatrixName;
+    }
+
 }
 
 var VertexShaderService = function(item){
 
     this.buildAttributes = function (){
         var text = "";    
-        // required    
-        text += "attribute vec3 " + this.getAttributeCoordName() + ";\n";  
+        // required   
+        if(this.getUniformMatrixName()!= null){
+            text += "attribute vec4 " + this.getAttributeCoordName() + ";\n";  
+        } 
+        else{
+            text += "attribute vec3 " + this.getAttributeCoordName() + ";\n";  
+        }        
         if(this.getAttributeColorName() != null){
             text += "attribute vec4 " + this.getAttributeColorName() + ";\n";                     
         }
         return text;       
     }
 
-    this.buildUniforms = function() {return "";}
+    this.buildUniforms = function() {
+        var text = ""; 
+        if(this.getUniformMatrixName()!= null){
+            text += "uniform mat4 " + this.getUniformMatrixName() + ";\n";
+        }
+        return text;
+    }
 
     this.buildVarying = function () {
         var text = "";   
@@ -54,12 +71,19 @@ var VertexShaderService = function(item){
     }
 
     this.buildInnerMain = function(){
-        var text = "";        
-        text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n"; 
+        var text = "";   
+        if(this.getUniformMatrixName()!= null){ 
+            text += "gl_Position = " 
+            + this.getUniformMatrixName() + " * "
+            + this.getAttributeCoordName() + ";\n";
+        }
+        else{    
+            text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";             
+        }   
         if(this.getAttributeColorName() != null){
             text += this.getAttributeColorName().replace("a_", "v_") + 
-                  "=" + this.getAttributeColorName() + ";\n";
-        }       
+                "=" + this.getAttributeColorName() + ";\n";
+        }    
         return text;
     }
 
@@ -71,8 +95,15 @@ var VertexShaderService = function(item){
         }
         if(attribute.getKind() == AttributeKind.COLOR){
             this.setAttributeColorName(attribute.getName());
-        }
+        }        
     })        
+    var uniforms = item.getUniforms();
+    uniforms.forEach(uniform =>{
+        if(uniform.getKind() == UniformKind.MATRIX){
+            this.setUniformMatrixName(uniform.getName());
+        }
+    });
+
     var shaderCode = "";
     shaderCode += this.buildAttributes();
     shaderCode += this.buildUniforms();

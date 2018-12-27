@@ -90,6 +90,14 @@ var FragmentShaderService = function(item){
                     }
                 });
         }
+        if( this.getAttributes().length > 0 &&
+            this.getUniforms().length > 0){
+                this.getAttributes().forEach(attribute =>{
+                    if(attribute.getKind() == AttributeKind.COLOR){
+                        text += "gl_FragColor = " + attribute.getName().replace("a_","v_") + ";\n";    
+                    }
+                });
+        }
         return text;
     }
 
