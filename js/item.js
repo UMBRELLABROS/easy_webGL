@@ -14,7 +14,8 @@ var ItemService = function(){
 
     var attributes = [];
     var uniforms = [];
-
+   
+    // getter, setter
     this.setAttributes = function(newAttributes){
         attributes = newAttributes;                 
     } 
@@ -24,6 +25,7 @@ var ItemService = function(){
         uniforms = newUniforms;                 
     } 
     this.getUniforms = function(){return uniforms;} 
+
     
 
     this.equals = function(newItem){
@@ -31,11 +33,14 @@ var ItemService = function(){
         var newAttributes = newItem.getAttributes();
         this.getAttributes().forEach(attribute => {
             newAttributes.forEach(newAttribute => {
-                if(attribute.equals(newAttribute)) cntFound++;            
+                if(!attribute.equals(newAttribute)) {
+                    cntFound++;            
+                    return;
+                }
             });            
         });
-        // TODO: check uniforms
-        return cntFound == this.getAttributes().length;
+        return cntFound>0?false:true;
+        // TODO: check uniforms        
     }
 
     this.create = function(prop, lights, camera){        
@@ -43,6 +48,8 @@ var ItemService = function(){
         var color = prop.getColor();
         var colorArray = prop.getColorArray();
         var position = prop.getPosition();
+        this.setVelocity = prop.setVelocity;
+        this.getVelocity = prop.getVelocity;
        
         var coordsAttribute = new AttributeService();               
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
@@ -108,13 +115,21 @@ var ItemService = function(){
     } 
 
     this.draw = function(){
-        Gl.useProgram(this.getProgram());
+        Gl.useProgram(this.getProgram());        
         
         this.getAttributes().forEach(attribute => {
             attribute.activate();
         });
 
-        this.getUniforms().forEach(uniform => {           
+        this.getUniforms().forEach(uniform => {    
+            if(uniform.getKind() == UniformKind.MATRIX){
+                var matrix = uniform.getValue();
+                var velocity = this.getVelocity();
+                matrix[12] += velocity[0]||0;
+                matrix[13] += velocity[1]||0;
+                matrix[14] += velocity[2]||0;
+                uniform.setValue(matrix);
+            }       
             uniform.activate();            
         });
 

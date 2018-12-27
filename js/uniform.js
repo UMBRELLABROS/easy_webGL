@@ -28,7 +28,7 @@ var UniformService = function(){
         this.setValue(newValue);
     }
 
-    this.activate = function(){
+    this.activate = function(){        
         Gl.activateUniform(this);
     }
 }

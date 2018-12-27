@@ -15,7 +15,7 @@ var WorldService = function(){
 
     this.createItems = function(newScene){
         // build items from scene        
-        var props = newScene.getProps();
+        var props = newScene.getProps();        
         var lights = newScene.getLights();
         var cameras = newScene.getCameras();
         
@@ -37,7 +37,6 @@ var WorldService = function(){
                 this.getItems().push(item);
             }
         });  
-
            
     }   
 

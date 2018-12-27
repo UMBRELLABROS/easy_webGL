@@ -11,8 +11,12 @@ var PropService = function(newProp){
     var colorArray = null;
     var surface = null;
     var position = null;
+    var velocity = [];
 
     // getter, setter
+    this.getVelocity = function(){return velocity;}
+    this.setVelocity = function(newVelocity){velocity = newVelocity;}
+    
     this.setCoords = function(newCoords){coords = newCoords;}
     this.getCoords = function(){return coords;}
 
