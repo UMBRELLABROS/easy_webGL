@@ -1,0 +1,47 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/3.4.2/mocha.css"
+</head>
+
+
+<body>
+
+    <div id="mocha"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/3.4.2/mocha.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.0.2/chai.js"></script>
+
+    <!-- testfile -->
+    <script src="../js/gl.js"></script>
+    <script src="../js/functions.js"></script>
+    <script src="../js/attribute.js"></script>
+    <script src="../js/uniform.js"></script>
+    <script src="../js/program.js"></script>    
+    <script src="../js/baseobject.js"></script>
+    <script src="../js/triangle.js"></script>
+    <script src="../js/item.js"></script>
+    <script src="../js/scene.js"></script>
+    <script src="../js/vertexshader.js"></script>
+    <script src="../js/fragmentshader.js"></script>
+    <script src="../js/world.js"></script>
+    <script src="../js/prop.js"></script>
+    <script src="../js/director.js"></script>
+
+    <script>
+        mocha.setup("bdd")
+    </script>
+
+    <script>
+        let expect = chai.expect;
+    </script>
+
+    <script src="vertexshader.test.js"></script>
+
+    <script>
+        mocha.run();
+    </script>
+
+</body>
+
+
+</html>
