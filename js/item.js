@@ -72,16 +72,10 @@ var ItemService = function(){
 
         if(position != null){
             var matrixUniform = new UniformService();
-
-            var identityMatrix = [1,0,0,0,
-                                0,1,0,0,
-                                0,0,1,0,
-                                0,0,0,1];
-            var matrix = identityMatrix;
+            
+            var matrix = m4.identity();
             if(position != null){
-                matrix[12]=position[0];
-                matrix[13]=position[1];
-                matrix[14]=position[2];
+                matrix = m4.translate(matrix,position[0],position[1],position[2])               
             }
 
             matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
@@ -125,9 +119,7 @@ var ItemService = function(){
             if(uniform.getKind() == UniformKind.MATRIX){
                 var matrix = uniform.getValue();
                 var velocity = this.getVelocity();
-                matrix[12] += velocity[0]||0;
-                matrix[13] += velocity[1]||0;
-                matrix[14] += velocity[2]||0;
+                matrix = m4.translate(matrix, velocity[0]||0, velocity[1]||0, velocity[2]||0);
                 uniform.setValue(matrix);
             }       
             uniform.activate();            

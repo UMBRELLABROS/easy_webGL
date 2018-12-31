@@ -4,9 +4,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />   
-    <title> Dreieck mit Button verschieben </title>
+    <title> Dreieck mit Math.js </title>
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
+    <script src="js/math.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/attribute.js"></script>
     <script src="js/uniform.js"></script>
@@ -25,11 +26,17 @@
 
   <body> 
     
-      <div id='canvas_container' ></div>      
+    <div id='canvas_container' ></div>      
 
-      <button onclick="moveY(0,-0.1,0)">Move -Y</button> 
-      <button onclick="moveY(0,+0.1,0)">Move +Y</button>
-    
+    <button onclick="moveY(-0.1,0,0)">Move -X</button> 
+    <button onclick="moveY(+0.1,0,0)">Move +X</button>
+    <br>
+    <button onclick="moveY(0,-0.1,0)">Move -Y</button> 
+    <button onclick="moveY(0,+0.1,0)">Move +Y</button>
+    <br>    
+    <button onclick="moveY(0,0,-0.1)">Move -Z</button> 
+    <button onclick="moveY(0,0,+0.1)">Move +Z</button>
+          
   </body>
 
   <script>
