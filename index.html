@@ -28,14 +28,16 @@
     
     <div id='canvas_container' ></div>      
 
-    <button onclick="moveY(-0.1,0,0)">Move -X</button> 
-    <button onclick="moveY(+0.1,0,0)">Move +X</button>
+    <button onclick="rotate(-0.2,0,0)">Rotate -X</button> 
+    <button onclick="rotate(+0.2,0,0)">Rotate +X</button>
     <br>
-    <button onclick="moveY(0,-0.1,0)">Move -Y</button> 
-    <button onclick="moveY(0,+0.1,0)">Move +Y</button>
-    <br>    
-    <button onclick="moveY(0,0,-0.1)">Move -Z</button> 
-    <button onclick="moveY(0,0,+0.1)">Move +Z</button>
+    <button onclick="rotate(0,-0.2,0)">Rotate -Y</button> 
+    <button onclick="rotate(0,+0.2,0)">Rotate +Y</button>
+    <br>
+    <button onclick="rotate(0, 0,-0.2)">Rotate -Z</button> 
+    <button onclick="rotate(0, 0,+0.2)">Rotate +Z</button>
+    <br>
+   
           
   </body>
 
@@ -90,10 +92,11 @@
 
     director.action();
 
-    function moveY(valueX,valueY,valueZ){
-        actor1.setVelocity([valueX,valueY,valueZ]);
+    function rotate(valueX,valueY,valueZ){
+        actor1.setRotation([valueX,valueY,valueZ]);
         director.action();
     }
+
 
     
     </script>

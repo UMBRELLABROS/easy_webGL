@@ -28,8 +28,7 @@ var DirectorController = function(canvas){
         this.getWorlds().forEach(world => {
             world.draw();
         });
-
-    } 
+    }     
 
     // constructor
     try {var gl = canvas.getContext('webgl') }

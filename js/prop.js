@@ -12,10 +12,14 @@ var PropService = function(newProp){
     var surface = null;
     var position = null;
     var velocity = [];
+    var rotation = [];
 
     // getter, setter
     this.getVelocity = function(){return velocity;}
     this.setVelocity = function(newVelocity){velocity = newVelocity;}
+
+    this.getRotation = function(){return rotation;}
+    this.setRotation = function(newRotation){rotation = newRotation;}
     
     this.setCoords = function(newCoords){coords = newCoords;}
     this.getCoords = function(){return coords;}

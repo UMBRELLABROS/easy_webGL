@@ -50,6 +50,8 @@ var ItemService = function(){
         var position = prop.getPosition();
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
+        this.setRotation = prop.setRotation;
+        this.getRotation = prop.getRotation;
        
         var coordsAttribute = new AttributeService();               
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
@@ -120,6 +122,11 @@ var ItemService = function(){
                 var matrix = uniform.getValue();
                 var velocity = this.getVelocity();
                 matrix = m4.translate(matrix, velocity[0]||0, velocity[1]||0, velocity[2]||0);
+
+                var rotation = this.getRotation();
+                matrix = m4.xRotate(matrix,rotation[0]||0);
+                matrix = m4.yRotate(matrix,rotation[1]||0);
+                matrix = m4.zRotate(matrix,rotation[2]||0);
                 uniform.setValue(matrix);
             }       
             uniform.activate();            
