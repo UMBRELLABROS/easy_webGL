@@ -10,6 +10,7 @@ var Director = function(){
 
 var DirectorController = function(canvas){
 
+    var startTime;
     var worlds = [];
     this.setWorlds = function(newWorlds) {worlds = newWorlds;}
     this.getWorlds = function(){return worlds;} 
@@ -24,11 +25,25 @@ var DirectorController = function(canvas){
         });        
     } 
 
-    this.action = function(){
-        this.getWorlds().forEach(world => {
+    this.action = function(){            
+        renderLoop();
+    } 
+    
+    var renderLoop = function(timestamp){    
+        if (!startTime) startTime = timestamp;    
+        var timeLap = timestamp - startTime;
+        if (timeLap > 20) {
+            render();
+            startTime = timestamp;
+        }
+        requestAnimationFrame(renderLoop);
+    }
+
+    var render = function(){
+        worlds.forEach(world => {
             world.draw();
         });
-    }     
+    }
 
     // constructor
     try {var gl = canvas.getContext('webgl') }
