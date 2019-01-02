@@ -16,6 +16,8 @@
 <script>
 var Attribute = function(){
 
+    
+
     var staticNum;
     this.getStaticNum = function(){return staticNum;}
     this.setStaticNum = function(newStaticNum){staticNum = newStaticNum;}
@@ -28,6 +30,8 @@ var Attribute = function(){
     this.getSource1 = function(){return source1;}
     this.setSource1 = function(newSource){source1 = newSource;} 
 
+    this.myArray = [];
+
     this.obj = {data:null};
     this.getObj = function(){return this.obj.data;}
     this.setObj = function(newData){this.obj.data = newData;}
@@ -39,6 +43,9 @@ var AttributeService = function(){
   var source2 = [];
   this.getSource2 = function(){return source2;}
   this.setSource2 = function(newSource){source2 = newSource;}
+
+  this.getMyArray = function(){return this.myArray;}
+  this.setMyArray = function(newSource){this.myArray = newSource;} 
 }
 AttributeService.prototype = new Attribute();
 
@@ -52,6 +59,7 @@ var Item = function(){
         this.attributes.forEach(attribute =>{
             console.log("SOURCE1 : " + attribute.getSource1());
             console.log("SOURCE2 : " + attribute.getSource2());
+            console.log("SOURCEMYARRAY : " + attribute.getMyArray());
             console.log("STATIC_NUM : " + attribute.getStaticNum());
             console.log("NUM : " + attribute.getNum());
             console.log("OBJ : " + attribute.getObj());
@@ -62,6 +70,7 @@ var Item = function(){
 var attribute1 = new AttributeService();
 attribute1.setSource1([1,2,3]);
 attribute1.setSource2([1,2,3]);
+attribute1.setMyArray([1,2,3]);
 attribute1.setNum(10);
 attribute1.setStaticNum(1000);
 attribute1.setObj([12,13,14]);
@@ -69,6 +78,7 @@ attribute1.setObj([12,13,14]);
 var attribute2 = new AttributeService();
 attribute2.setSource1([4,5,6]);
 attribute2.setSource2([4,5,6]);
+attribute2.setMyArray([4,5,6]);
 attribute2.setNum(20);
 attribute1.setStaticNum(2000);
 // attribute2.num(21); // error

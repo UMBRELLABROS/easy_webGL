@@ -9,12 +9,13 @@ var m4 = {
     ];
   },
 
-  projection: function(width, height, depth) {       
+  projection: function(width, height, depth) {   
+    var aspect = height/width;    
     return [
-      2 / width, 0, 0, 0,
-      0, -2 / height, 0, 0,
-      0, 0, 2 / depth, 0,
-      -1, 1, 0, 1,
+      aspect, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1,
     ];
   },
 

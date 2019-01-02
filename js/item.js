@@ -14,6 +14,7 @@ var ItemService = function(){
 
     var attributes = [];
     var uniforms = [];
+    var actualRotation = [0,0,0];
    
     // getter, setter
     this.setAttributes = function(newAttributes){
@@ -25,6 +26,11 @@ var ItemService = function(){
         uniforms = newUniforms;                 
     } 
     this.getUniforms = function(){return uniforms;} 
+
+    this.getActualRotation = function(){return actualRotation;}
+    this.setActualRotation = function(newActualRotation){
+        actualRotation = newActualRotation;
+    }
 
     
 
@@ -119,14 +125,24 @@ var ItemService = function(){
 
         this.getUniforms().forEach(uniform => {    
             if(uniform.getKind() == UniformKind.MATRIX){
-                var matrix = uniform.getValue();
+
+                var matrix = m4.identity()
+                
+                matrix = m4.multiply(m4.projection(Gl.getDisplay()[0],Gl.getDisplay()[1],100),matrix);
+
                 var velocity = this.getVelocity();
                 matrix = m4.translate(matrix, velocity[0]||0, velocity[1]||0, velocity[2]||0);
 
                 var rotation = this.getRotation();
-                matrix = m4.xRotate(matrix,rotation[0]||0);
-                matrix = m4.yRotate(matrix,rotation[1]||0);
-                matrix = m4.zRotate(matrix,rotation[2]||0);
+                var actualRoation = this.getActualRotation();
+                actualRoation[0]+=rotation[0]||0;
+                actualRoation[1]+=rotation[1]||0;
+                actualRoation[2]+=rotation[2]||0;
+                matrix = m4.xRotate(matrix,actualRoation[0]);
+                matrix = m4.yRotate(matrix,actualRoation[1]);
+                matrix = m4.zRotate(matrix,actualRoation[2]);
+                this.setActualRotation(actualRoation)                
+
                 uniform.setValue(matrix);
             }       
             uniform.activate();            

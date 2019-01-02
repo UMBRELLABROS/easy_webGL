@@ -4,7 +4,9 @@ var Director = function(){
     // worlds
     
     // getter, setter
-    this.setGl = function(newGl){Gl.setGl(newGl);}
+    this.setGl = function(newGl,width,height){
+        Gl.setGl(newGl,width,height);
+    }
 
 } 
 
@@ -49,7 +51,7 @@ var DirectorController = function(canvas){
     try {var gl = canvas.getContext('webgl') }
     catch(e) {alert('Exception init: '+e.toString());}
     if(!gl) {alert('Unable to create Web GL context');}
-    this.setGl(gl);
+    this.setGl(gl, canvas.width, canvas.height);
 
 }
 DirectorController.prototype = new Director;

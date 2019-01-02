@@ -1,11 +1,24 @@
 "use strict";
 var Gl = {
     gl : null,
+    displayWidth : 0,
+    displayHeight : 0,
+    displayDepth : 0,
     program : null,
     attributes: [],    
 
     // getter, setter
-    setGl : function(newGl){this.gl = newGl;},
+    setGl : function(newGl, width, height){
+        this.gl = newGl;
+        this.displayWidth = width;
+        this.displayHeight = height;
+    },
+
+    getDisplay : function(){
+        return [this.displayWidth,
+                this.displayHeight,
+                this.displayDepth];
+    },
 
     // functions
     createShader : function(shaderType, shaderCode){
