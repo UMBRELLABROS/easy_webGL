@@ -120,6 +120,10 @@ var Gl = {
         }
     },    
 
+    setDrawModes : function(){        
+        this.gl.enable(this.gl.DEPTH_TEST);
+    },
+
     draw :  function(countIndices){
         this.gl.drawArrays(this.gl.TRIANGLES, 0, countIndices);
     }

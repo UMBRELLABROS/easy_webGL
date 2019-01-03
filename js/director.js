@@ -28,6 +28,7 @@ var DirectorController = function(canvas){
     } 
 
     this.action = function(){            
+        Gl.setDrawModes();
         renderLoop();
     } 
     
