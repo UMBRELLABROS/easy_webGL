@@ -4,10 +4,14 @@ var Item = function(){
     // attributes
     // uniforms
     this.program;
+    this.countIndices;
 
     // getter, setter
     this.setProgram = function(newProgram){this.program = newProgram;} 
     this.getProgram = function(){return this.program;}
+
+    this.setCountIndices = function(newCount){this.countIndices = newCount;}
+    this.getCountIndices = function(){return this.countIndices;}
     
 }
 var ItemService = function(){
@@ -59,7 +63,8 @@ var ItemService = function(){
         this.setRotation = prop.setRotation;
         this.getRotation = prop.getRotation;
        
-        var coordsAttribute = new AttributeService();               
+        var coordsAttribute = new AttributeService();   
+        this.setCountIndices(coords.length/3);            
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
         coordsAttribute.createBuffer();
         this.getAttributes().push(coordsAttribute);
@@ -148,7 +153,7 @@ var ItemService = function(){
             uniform.activate();            
         });
 
-        Gl.draw();
+        Gl.draw(this.getCountIndices());
     }
 
 }   

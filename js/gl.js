@@ -118,10 +118,10 @@ var Gl = {
                 this.gl.uniformMatrix4fv(uniform.getLocation(), false, uniform.getValue());
             break;
         }
-    },
+    },    
 
-    draw :  function(){
-        this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+    draw :  function(countIndices){
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, countIndices);
     }
 
 }
