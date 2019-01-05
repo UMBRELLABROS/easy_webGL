@@ -2,6 +2,7 @@
 var VertexShader = function(){
     
     this.attributeCoordsName;    
+    this.attributeNormalsName = null;
     this.attributeColorName = null;
     this.uniformMatrixName = null;
     this.code = "";
@@ -15,6 +16,11 @@ var VertexShader = function(){
     this.getAttributeCoordName = function(){return this.attributeCoordsName;}
     this.setAttributeCoordName = function(newAttributeCoordName){ 
         this.attributeCoordsName = newAttributeCoordName;
+    }
+
+    this.getAttributeNormalsName = function(){return this.attributeNormalsName;}
+    this.setAttributeNormalsName = function(newAttributeNormalsName){ 
+        this.attributeNormalsName = newAttributeNormalsName;
     }
 
     this.getAttributeColorName = function(){return this.attributeColorName;}
@@ -39,7 +45,10 @@ var VertexShaderService = function(item){
         } 
         else{
             text += "attribute vec3 " + this.getAttributeCoordName() + ";\n";  
-        }        
+        } 
+        if(this.getAttributeNormalsName() != null){
+            text += "attribute vec3 " + this.getAttributeNormalsName() + ";\n";                     
+        }       
         if(this.getAttributeColorName() != null){
             text += "attribute vec4 " + this.getAttributeColorName() + ";\n";                     
         }
@@ -58,7 +67,10 @@ var VertexShaderService = function(item){
         var text = "";   
         if(this.getAttributeColorName() != null){            
             text += "varying vec4 " + this.getAttributeColorName().replace("a_", "v_") + ";\n";           
-        }        
+        }      
+        if(this.getAttributeNormalsName() != null){
+            text += "varying vec3 " + this.getAttributeNormalsName().replace("a_", "v_") + ";\n";                     
+        }    
         return text;
     }
 
@@ -74,16 +86,22 @@ var VertexShaderService = function(item){
         var text = "";   
         if(this.getUniformMatrixName()!= null){ 
             text += "gl_Position = " 
-            + this.getUniformMatrixName() + " * "
+            + this.getUniformMatrixName() + "*"
             + this.getAttributeCoordName() + ";\n";
         }
         else{    
             text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";             
         }   
         if(this.getAttributeColorName() != null){
-            text += this.getAttributeColorName().replace("a_", "v_") + 
-                "=" + this.getAttributeColorName() + ";\n";
+            text += this.getAttributeColorName().replace("a_", "v_") 
+                + "=" + this.getAttributeColorName() + ";\n";
         }    
+        if(this.getAttributeNormalsName() != null && 
+            this.getUniformMatrixName()!= null){
+            text += this.getAttributeNormalsName().replace("a_", "v_")  
+                +"=mat3("+ this.getUniformMatrixName() +")*" 
+                + this.getAttributeNormalsName() + ";\n";
+        }  
         return text;
     }
 
@@ -95,7 +113,10 @@ var VertexShaderService = function(item){
         }
         if(attribute.getKind() == AttributeKind.COLOR){
             this.setAttributeColorName(attribute.getName());
-        }        
+        }  
+        if(attribute.getKind() == AttributeKind.NORMALS){
+            this.setAttributeNormalsName(attribute.getName());
+        }       
     })        
     var uniforms = item.getUniforms();
     uniforms.forEach(uniform =>{

@@ -4,7 +4,7 @@ var Item = function(){
     // attributes
     // uniforms
     this.program;
-    this.countIndices;
+    this.countIndices;    
 
     // getter, setter
     this.setProgram = function(newProgram){this.program = newProgram;} 
@@ -35,8 +35,8 @@ var ItemService = function(){
     this.setActualRotation = function(newActualRotation){
         actualRotation = newActualRotation;
     }
-
     
+
 
     this.equals = function(newItem){
         var cntFound = 0
@@ -58,16 +58,38 @@ var ItemService = function(){
         var color = prop.getColor();
         var colorArray = prop.getColorArray();
         var position = prop.getPosition();
+        var normals = prop.getNormals();        
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
         this.setRotation = prop.setRotation;
         this.getRotation = prop.getRotation;
+
+        var directLight = null;
+        lights.forEach(light => {
+            if(light.getKind() == LightKind.DIRECT){
+                directLight = light.getDirection();                
+            }            
+        });
        
         var coordsAttribute = new AttributeService();   
         this.setCountIndices(coords.length/3);            
         coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
         coordsAttribute.createBuffer();
         this.getAttributes().push(coordsAttribute);
+
+
+        if(normals != null){
+            var normalAttribute = new AttributeService();
+            normalAttribute.create(AttributeKind.NORMALS, "a_normals", normals);
+            normalAttribute.createBuffer();         
+            this.getAttributes().push(normalAttribute); 
+        }
+
+        if(directLight != null){
+            var directLightUniform = new UniformService();
+            directLightUniform.create(UniformKind.DIRECTLIGHT, "u_direct_direction", directLight);
+            this.getUniforms().push(directLightUniform);
+        }
 
         if(color != null){
             var colorUniform = new UniformService();
@@ -150,6 +172,7 @@ var ItemService = function(){
 
                 uniform.setValue(matrix);
             }       
+            
             uniform.activate();            
         });
 

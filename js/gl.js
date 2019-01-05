@@ -98,6 +98,9 @@ var Gl = {
 
     activateAttribute : function(attribute){
         var location = attribute.getLocation();
+        if(location<0){
+            throw("Error in Shader: " + attribute.getName());
+        }
         this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
         this.gl.enableVertexAttribArray(location);
         this.gl.vertexAttribPointer(location, attribute.getSize(), this.gl.FLOAT, false, 0, 0);
@@ -116,6 +119,11 @@ var Gl = {
             break;
             case UniformKind.MATRIX:
                 this.gl.uniformMatrix4fv(uniform.getLocation(), false, uniform.getValue());
+            break;
+            case UniformKind.DIRECTLIGHT:
+                this.gl.uniform3f(uniform.getLocation(),
+                uniform.getValue()[0],uniform.getValue()[1],
+                uniform.getValue()[2]);
             break;
         }
     },    

@@ -2,7 +2,9 @@
 var FragmentShader = function(){
     
     this.uniformColorName = null;
-    this.varyingColorName = null;       
+    this.uniformDirectDirectionName = null;    
+    this.varyingColorName = null;   
+    this.varyingNormalsName = null;    
     this.code ;
 
     // getter, setter
@@ -14,9 +16,21 @@ var FragmentShader = function(){
         this.varyingColorName = newVaryingColorName;
     }
 
+    this.getVaryingNormalsName = function(){return this.varyingNormalsName;} 
+    this.setVaryingNormalsName = function(newVaryingNormalsName){
+        this.varyingNormalsName = newVaryingNormalsName;
+    }
+
     this.getUniformColorName = function(){return this.uniformColorName;} 
     this.setUniformColorName = function(newUniformColorName){
         this.uniformColorName = newUniformColorName;
+    }
+
+    this.getUniformDirectDirectionName = function(){
+        return this.uniformDirectDirectionName;
+    } 
+    this.setUniformDirectDirectionName = function(newUniformDirectDirectionName){
+        this.uniformDirectDirectionName = newUniformDirectDirectionName;
     }
 }
 
@@ -48,6 +62,9 @@ var FragmentShaderService = function(item){
         if(this.getUniformColorName()!=null){            
             text += "uniform vec4 " + this.getUniformColorName() + ";\n";
         }
+        if(this.getUniformDirectDirectionName()!=null){            
+            text += "uniform vec3 " + this.getUniformDirectDirectionName() + ";\n";
+        }
         return text;
     }
 
@@ -56,7 +73,9 @@ var FragmentShaderService = function(item){
         if(this.getVaryingColorName() != null){
             text += "varying vec4 " + this.getVaryingColorName() + ";\n";
         }
-
+        if(this.getVaryingNormalsName() != null){
+            text += "varying vec3 " + this.getVaryingNormalsName() + ";\n";
+        }
         return text;
     }
 
@@ -92,11 +111,23 @@ var FragmentShaderService = function(item){
         }
         if( this.getAttributes().length > 0 &&
             this.getUniforms().length > 0){
+                if(this.getVaryingNormalsName()!=null
+                    && this.getUniformDirectDirectionName()!=null){                     
+                    text +="vec3 normal = normalize("+this.getVaryingNormalsName()+");\n";
+                    text +="float lightfactor = dot(normal,";
+                    text += this.getUniformDirectDirectionName() +");\n";                    
+                }
                 this.getAttributes().forEach(attribute =>{
                     if(attribute.getKind() == AttributeKind.COLOR){
                         text += "gl_FragColor = " + attribute.getName().replace("a_","v_") + ";\n";    
                     }
+                    
                 });
+                if(this.getVaryingNormalsName()!=null
+                    && this.getUniformDirectDirectionName()!=null){
+                    text += "gl_FragColor.rgb *= lightfactor;\n"; 
+                }
+
         }
         return text;
     }
@@ -107,12 +138,18 @@ var FragmentShaderService = function(item){
         if(uniform.getKind() == UniformKind.COLOR){
             this.setUniformColorName(uniform.getName());
         }
+        if(uniform.getKind() == UniformKind.DIRECTLIGHT){
+            this.setUniformDirectDirectionName(uniform.getName());
+        }
     })  
 
     this.setAttributes(item.getAttributes());
     this.getAttributes().forEach(attribute =>{
         if(attribute.getKind() == AttributeKind.COLOR){
             this.setVaryingColorName(attribute.getName().replace("a_","v_"));
+        }
+        if(attribute.getKind() == AttributeKind.NORMALS){
+            this.setVaryingNormalsName(attribute.getName().replace("a_","v_"));
         }
     }) 
 

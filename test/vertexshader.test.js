@@ -108,11 +108,64 @@ describe('VertexShader', () =>{
             let text = 'attribute vec4 a_coords;\n'+
             'uniform mat4 u_matrix;\n'+
             'void main(){\n'+
-            'gl_Position = u_matrix * a_coords;\n'+
+            'gl_Position = u_matrix*a_coords;\n'+
             '}\n';
             expect(vertexShader.getCode()).to.equal(text);
         });
     }); 
+
+    describe('simple colorArray directLight shader',() =>{  
+        beforeEach( () => {
+            var prop = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0],
+                colorArray:[1.0,0.0,0.0,1.0,
+                    0.0,1.0,0.0,1.0,
+                    0.0,0.0,1.0,1.0],
+                normals:[1,0,0, 1,0,0, 1,0,0]});
+            var coords = prop.getCoords();    
+            var coordsAttribute = new AttributeService();               
+            coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);   
+
+            var normals = prop.getCoords();    
+            var normalsAttribute = new AttributeService();               
+            normalsAttribute.create(AttributeKind.NORMALS, "a_normals", normals); 
+            
+            var colorArray = prop.getColorArray();
+            var colorAttribute = new AttributeService();
+            colorAttribute.create(AttributeKind.COLOR, "a_color", colorArray);   
+            
+            var matrixUniform = new UniformService();
+            var identityMatrix = [1,0,0,0,
+                0,1,0,0,
+                0,0,1,0,
+                0,0,0,1];
+            var matrix = identityMatrix;
+            matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
+
+            var directLightUniform = new UniformService();            
+            var direction = [1,1,1];
+            directLightUniform.create(UniformKind.DIRECTLIGHT, "u_direct_direction", direction); 
+
+            item.setAttributes([coordsAttribute, colorAttribute, normalsAttribute]);
+            item.setUniforms([matrixUniform, directLightUniform]);
+
+            vertexShader = new VertexShaderService(item);
+        });
+
+        it('should create correct code', () =>{
+            let text = 'attribute vec4 a_coords;\n'+
+            'attribute vec3 a_normals;\n'+
+            'attribute vec4 a_color;\n'+
+            'uniform mat4 u_matrix;\n'+
+            'varying vec4 v_color;\n'+
+            'varying vec3 v_normals;\n'+
+            'void main(){\n'+
+            'gl_Position = u_matrix*a_coords;\n'+
+            'v_color=a_color;\n'+
+            'v_normals=mat3(u_matrix)*a_normals;\n'+
+            '}\n';
+            expect(vertexShader.getCode()).to.equal(text);
+        });
+    });   
 
 
 });

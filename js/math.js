@@ -146,4 +146,15 @@ var m4 = {
     return m4.multiply(m, m4.scaling(sx, sy, sz));
   },
 
+  normalize: function(v) {
+    var dst = [];
+    var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);    
+    if (length > 0.00001) {
+      dst[0] = v[0] / length;
+      dst[1] = v[1] / length;
+      dst[2] = v[2] / length;
+    }
+    return dst;
+  },
+
 };

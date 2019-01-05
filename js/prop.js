@@ -1,6 +1,6 @@
 "use strict";
 var Prop = function(){
-    
+    this.normals = null;
        
 }
 
@@ -33,10 +33,15 @@ var PropService = function(newProp){
     this.getColorArray = function(){return colorArray;}
     this.setColorArray = function(newColorArray){colorArray = newColorArray;}
 
+    this.getNormals = function(){return this.normals;}
+    this.setNormals = function(newNormals){this.normals = newNormals;}
 
     // constructor    
     if (newProp.hasOwnProperty("coords")) {
         this.setCoords(newProp.coords);                 
+    }
+    if (newProp.hasOwnProperty("normals")) {
+        this.setNormals(newProp.normals);                 
     }
     if (newProp.hasOwnProperty("color")) {
         this.setColor(newProp.color);                 
