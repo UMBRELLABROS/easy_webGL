@@ -29,7 +29,8 @@ var AttributeKind = Object.freeze({"NONE":0,
             "COORDS":1, 
             "COLOR":2,
             "NORMALS":3,
-            "TEXTURE":4});
+            "INDICES":4,
+            "TEXTURE":5});
 var UniformKind = Object.freeze({"NONE":0,
             "COLOR":1,
             "MATRIX":2,
@@ -37,6 +38,7 @@ var UniformKind = Object.freeze({"NONE":0,
 var LightKind = Object.freeze({"NONE":0,
             "DIRECT":1,
             "POINT":2});
+var DrawKind = Object.freeze({"TRIANGLE":0,"ELEMENT":1}); 
 var ShaderKind = Object.freeze({"VERTEX":0,"FRAGMENT":1});   
 var TargetKind = Object.freeze({"ARRAY_BUFFER":0,"ELEMENT_ARRAY_BUFFER":1});        
 

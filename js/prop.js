@@ -1,6 +1,7 @@
 "use strict";
 var Prop = function(){
     this.normals = null;
+    this.indices = null;
        
 }
 
@@ -36,12 +37,18 @@ var PropService = function(newProp){
     this.getNormals = function(){return this.normals;}
     this.setNormals = function(newNormals){this.normals = newNormals;}
 
+    this.getIndices = function(){return this.indices;}
+    this.setIndices = function(newIndices){this.indices = newIndices;}
+
     // constructor    
     if (newProp.hasOwnProperty("coords")) {
         this.setCoords(newProp.coords);                 
     }
     if (newProp.hasOwnProperty("normals")) {
         this.setNormals(newProp.normals);                 
+    }
+    if (newProp.hasOwnProperty("indices")) {
+        this.setIndices(newProp.indices);                 
     }
     if (newProp.hasOwnProperty("color")) {
         this.setColor(newProp.color);                 

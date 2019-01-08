@@ -37,9 +37,9 @@ var AttributeService = function(){
 
     var srcData = [];      
     this.setSrcData = function(newSrcData){
-        switch(this.kind){
-            case "index":
-                srcData = new Int32Array(newSrcData); 
+        switch(this.getKind()){
+            case AttributeKind.INDICES:
+                srcData = new Uint16Array(newSrcData); 
                 this.setTarget(Gl.getTarget(TargetKind.ELEMENT_ARRAY_BUFFER));               
             break;
             default:

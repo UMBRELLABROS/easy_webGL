@@ -68,14 +68,10 @@ var Gl = {
         if (foundAttribute != null) 
             return foundAttribute.getBuffer();
 
-        var	buffer = this.gl.createBuffer();
-        var target = this.gl.ARRAY_BUFFER; 
-        if( attribute.getTarget()==TargetKind.ELEMENT_ARRAY_BUFFER){
-            target = this.gl.ELEMENT_ARRAY_BUFFER;
-        }
-	    this.gl.bindBuffer(target, buffer);
-        this.gl.bufferData(target, attribute.getSrcData(), this.gl.STATIC_DRAW);     
-        
+        var	buffer = this.gl.createBuffer();       
+	    this.gl.bindBuffer(attribute.getTarget(), buffer);
+        this.gl.bufferData(attribute.getTarget(), attribute.getSrcData(), this.gl.STATIC_DRAW);   
+        this.gl.bindBuffer(attribute.getTarget(), null);          
         this.getAttributes().push(attribute);   
 
         return buffer;
@@ -96,15 +92,20 @@ var Gl = {
         }
     },
 
-    activateAttribute : function(attribute){
-        var location = attribute.getLocation();
-        if(location<0){
-            throw("Error in Shader: " + attribute.getName());
+    activateAttribute : function(attribute){        
+        if(attribute.getKind() == AttributeKind.INDICES){
+            this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
         }
-        this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
-        this.gl.enableVertexAttribArray(location);
-        this.gl.vertexAttribPointer(location, attribute.getSize(), this.gl.FLOAT, false, 0, 0);
-    },
+        else{
+            var location = attribute.getLocation();
+            if(location<0){
+                throw("Error in Shader: " + attribute.getName());
+            }
+            this.gl.bindBuffer(attribute.getTarget(), attribute.getBuffer());
+            this.gl.enableVertexAttribArray(location);
+            this.gl.vertexAttribPointer(location, attribute.getSize(), this.gl.FLOAT, false, 0, 0);
+        }
+    },    
 
     getUniformLocation : function(program, name){
         return this.gl.getUniformLocation(program, name);
@@ -129,12 +130,16 @@ var Gl = {
     },    
 
     setDrawModes : function(){   
-        this.gl.enable(this.gl.CULL_FACE);     
+        //this.gl.enable(this.gl.CULL_FACE);     
         this.gl.enable(this.gl.DEPTH_TEST);
     },
 
     draw :  function(countIndices){
         this.gl.drawArrays(this.gl.TRIANGLES, 0, countIndices);
+    },
+
+    drawElement : function(countElements){
+        this.gl.drawElements(this.gl.TRIANGLES,countElements,this.gl.UNSIGNED_SHORT,0);           
     }
 
 }

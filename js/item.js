@@ -4,7 +4,9 @@ var Item = function(){
     // attributes
     // uniforms
     this.program;
-    this.countIndices;    
+    this.countIndices; 
+    this.countElements;    
+    this.drawKind = DrawKind.TRIANGLE;
 
     // getter, setter
     this.setProgram = function(newProgram){this.program = newProgram;} 
@@ -12,7 +14,12 @@ var Item = function(){
 
     this.setCountIndices = function(newCount){this.countIndices = newCount;}
     this.getCountIndices = function(){return this.countIndices;}
+
+    this.setCountElements = function(newCount){this.countElements = newCount;}
+    this.getCountElements = function(){return this.countElements;}
     
+    this.setDrawKind = function(newDrawKind){this.drawKind = newDrawKind;}
+    this.getDrawKind = function(){return this.drawKind;}
 }
 var ItemService = function(){
 
@@ -58,7 +65,8 @@ var ItemService = function(){
         var color = prop.getColor();
         var colorArray = prop.getColorArray();
         var position = prop.getPosition();
-        var normals = prop.getNormals();        
+        var normals = prop.getNormals(); 
+        var indices = prop.getIndices();       
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
         this.setRotation = prop.setRotation;
@@ -77,13 +85,21 @@ var ItemService = function(){
         coordsAttribute.createBuffer();
         this.getAttributes().push(coordsAttribute);
 
+        if(indices != null){
+            var indexAttribute = new AttributeService();
+            indexAttribute.create(AttributeKind.INDICES, "a_indices", indices);
+            indexAttribute.createBuffer();         
+            this.getAttributes().push(indexAttribute); 
+            this.setDrawKind(DrawKind.ELEMENT);
+            this.setCountElements(indices.length);
+        }
 
         if(normals != null){
-            var normalAttribute = new AttributeService();
-            normalAttribute.create(AttributeKind.NORMALS, "a_normals", normals);
+            var normalAttribute = new AttributeService();            
+            normalAttribute.create(AttributeKind.NORMALS, "a_normals", normals);            
             normalAttribute.createBuffer();         
             this.getAttributes().push(normalAttribute); 
-        }
+        }        
 
         if(directLight != null){
             var directLightUniform = new UniformService();
@@ -116,6 +132,8 @@ var ItemService = function(){
             matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
             this.getUniforms().push(matrixUniform);            
         }
+
+        
 
     }
 
@@ -176,7 +194,12 @@ var ItemService = function(){
             uniform.activate();            
         });
 
-        Gl.draw(this.getCountIndices());
+        if(this.getDrawKind()==DrawKind.TRIANGLE){
+            Gl.draw(this.getCountIndices());
+        }
+        else{
+            Gl.drawElement(this.getCountElements());
+        }
     }
 
 }   
