@@ -2,6 +2,8 @@
 var Prop = function(){
     this.normals = null;
     this.indices = null;
+    this.image = null;
+    this.uvCoords = null;
        
 }
 
@@ -58,6 +60,12 @@ var PropService = function(newProp){
     }
     if (newProp.hasOwnProperty("position")) {
         this.setPosition(newProp.position);                 
+    }
+    if (newProp.hasOwnProperty("image")) {
+        this.image = newProp.image;                 
+    }
+    if (newProp.hasOwnProperty("uvCoords")) {
+        this.uvCoords = newProp.uvCoords;                 
     }
     
 }

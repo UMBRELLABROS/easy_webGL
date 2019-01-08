@@ -66,7 +66,9 @@ var ItemService = function(){
         var colorArray = prop.getColorArray();
         var position = prop.getPosition();
         var normals = prop.getNormals(); 
-        var indices = prop.getIndices();       
+        var indices = prop.getIndices();   
+        var image = prop.image;
+        var uvCoords = prop.uvCoords;    
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
         this.setRotation = prop.setRotation;
@@ -131,6 +133,41 @@ var ItemService = function(){
 
             matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
             this.getUniforms().push(matrixUniform);            
+        }
+
+        if(uvCoords != null){
+            var uvCoordsAttribute = new AttributeService();
+            uvCoordsAttribute.create(AttributeKind.COLOR, "a_uv_coords", uvCoords);
+            uvCoordsAttribute.createBuffer();
+            uvCoordsAttribute.setSize(2); //u,v
+            this.getAttributes().push(uvCoordsAttribute); 
+        }
+        if(image != null){
+
+            var textureUniform = new UniformService();
+            textureUniform.create(UniformKind.IMAGE, "u_texture", image);
+            this.getUniforms().push(textureUniform);
+            Gl.placeHolderImage();
+
+            var texture = gl.createTexture();
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+ 
+
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+              new Uint8Array([0, 0, 255, 255]));
+
+            var image = new Image();
+            image.src = image;
+            image.addEventListener('load', function() {
+                
+                Gl.loadImage(image); 
+
+                   
+
+              gl.bindTexture(gl.TEXTURE_2D, texture);
+              gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
+              gl.generateMipmap(gl.TEXTURE_2D);
+            });
         }
 
         
