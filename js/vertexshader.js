@@ -4,7 +4,9 @@ var VertexShader = function(){
     this.attributeCoordsName;    
     this.attributeNormalsName = null;
     this.attributeColorName = null;
+    this.attributeUVCoordsName = null;
     this.uniformMatrixName = null;
+    this.uniformTextureName = null;
     this.code = "";
 
     // getter, setter
@@ -52,6 +54,9 @@ var VertexShaderService = function(item){
         if(this.getAttributeColorName() != null){
             text += "attribute vec4 " + this.getAttributeColorName() + ";\n";                     
         }
+        if(this.attributeUVCoordsName != null){
+            text += "attribute vec2 " +this.attributeUVCoordsName + ";\n"; 
+        }
         return text;       
     }
 
@@ -70,7 +75,10 @@ var VertexShaderService = function(item){
         }      
         if(this.getAttributeNormalsName() != null){
             text += "varying vec3 " + this.getAttributeNormalsName().replace("a_", "v_") + ";\n";                     
-        }    
+        }   
+        if(this.attributeUVCoordsName != null){
+            text += "varying vec2 " +this.attributeUVCoordsName.replace("a_", "v_")  + ";\n"; 
+        } 
         return text;
     }
 
@@ -84,11 +92,11 @@ var VertexShaderService = function(item){
 
     this.buildInnerMain = function(){
         var text = "";   
-        if(this.getUniformMatrixName()!= null){ 
+        if(this.getUniformMatrixName()!= null ){ 
             text += "gl_Position = " 
             + this.getUniformMatrixName() + "*"
             + this.getAttributeCoordName() + ";\n";
-        }
+        }        
         else{    
             text += "gl_Position = vec4(" + this.getAttributeCoordName() + ",1);\n";             
         }   
@@ -102,6 +110,10 @@ var VertexShaderService = function(item){
                 +"=mat3("+ this.getUniformMatrixName() +")*" 
                 + this.getAttributeNormalsName() + ";\n";
         }  
+        if(this.attributeUVCoordsName != null){
+            text += this.attributeUVCoordsName.replace("a_", "v_") 
+                + "=" + this.attributeUVCoordsName + ";\n";
+        }
         return text;
     }
 
@@ -116,12 +128,18 @@ var VertexShaderService = function(item){
         }  
         if(attribute.getKind() == AttributeKind.NORMALS){
             this.setAttributeNormalsName(attribute.getName());
-        }       
+        }     
+        if(attribute.getKind() == AttributeKind.UVCOORDS){
+            this.attributeUVCoordsName = attribute.getName();
+        }  
     })        
     var uniforms = item.getUniforms();
     uniforms.forEach(uniform =>{
         if(uniform.getKind() == UniformKind.MATRIX){
             this.setUniformMatrixName(uniform.getName());
+        }
+        if(uniform.getKind() == UniformKind.TEXTURE){
+            this.uniformTextureName = uniform.getName();
         }
     });
 

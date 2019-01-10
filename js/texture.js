@@ -1,20 +1,18 @@
 "use strict;"
 var Texture = function(){
-    this.image;
-    this.location;
+    this.image;   
+    this.texture;
 
-    this.setLocation = function(newLocation){this.location = newLocation;}
-    this.getLocation = function(){return this.location;}
 }
 
 var TextureService = function(){
 
     this.preLoad = function(){
-
+        this.texture = Gl.createTexture();
     }
 
-    this.load = function(){
-        
+    this.load = function(newImage){
+        Gl.setTexture(this.texture, newImage);
     }
 
 }

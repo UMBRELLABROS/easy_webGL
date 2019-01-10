@@ -137,41 +137,23 @@ var ItemService = function(){
 
         if(uvCoords != null){
             var uvCoordsAttribute = new AttributeService();
-            uvCoordsAttribute.create(AttributeKind.COLOR, "a_uv_coords", uvCoords);
+            uvCoordsAttribute.create(AttributeKind.UVCOORDS, "a_uv_coords", uvCoords);
             uvCoordsAttribute.createBuffer();
             uvCoordsAttribute.setSize(2); //u,v
             this.getAttributes().push(uvCoordsAttribute); 
         }
+        
         if(image != null){
+            var texture = new TextureService();
+            texture.preLoad();
 
             var textureUniform = new UniformService();
-            textureUniform.create(UniformKind.IMAGE, "u_texture", image);
+            textureUniform.create(UniformKind.TEXTURE, "u_texture", texture);
             this.getUniforms().push(textureUniform);
-            Gl.placeHolderImage();
 
-            var texture = gl.createTexture();
-                    gl.bindTexture(gl.TEXTURE_2D, texture);
- 
-
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-              new Uint8Array([0, 0, 255, 255]));
-
-            var image = new Image();
-            image.src = image;
-            image.addEventListener('load', function() {
-                
-                Gl.loadImage(image); 
-
-                   
-
-              gl.bindTexture(gl.TEXTURE_2D, texture);
-              gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
-              gl.generateMipmap(gl.TEXTURE_2D);
-            });
+            texture.load(image);                        
         }
-
         
-
     }
 
     this.createProgram = function(newProgram){

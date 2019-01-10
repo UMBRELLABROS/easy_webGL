@@ -2,6 +2,7 @@
 function d() {return document};
 function $(id) {return d().getElementById(id);}
 function dcE(element) {return d().createElement(element);}
+function isPowerOf2(n) {return (n & (n - 1)) == 0;}
 
 Array.prototype.equals = function (array) {
     if (!array)
@@ -30,11 +31,12 @@ var AttributeKind = Object.freeze({"NONE":0,
             "COLOR":2,
             "NORMALS":3,
             "INDICES":4,
-            "TEXTURE":5});
+            "UVCOORDS":5});
 var UniformKind = Object.freeze({"NONE":0,
             "COLOR":1,
             "MATRIX":2,
-            "DIRECTLIGHT":3});
+            "TEXTURE":3,
+            "DIRECTLIGHT":4});
 var LightKind = Object.freeze({"NONE":0,
             "DIRECT":1,
             "POINT":2});

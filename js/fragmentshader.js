@@ -3,8 +3,10 @@ var FragmentShader = function(){
     
     this.uniformColorName = null;
     this.uniformDirectDirectionName = null;    
+    this.uniformTextureName = null;
     this.varyingColorName = null;   
-    this.varyingNormalsName = null;    
+    this.varyingNormalsName = null;
+    this.varyingUVCoordsName = null;    
     this.code ;
 
     // getter, setter
@@ -65,6 +67,9 @@ var FragmentShaderService = function(item){
         if(this.getUniformDirectDirectionName()!=null){            
             text += "uniform vec3 " + this.getUniformDirectDirectionName() + ";\n";
         }
+        if(this.uniformTextureName != null){
+            text += "uniform sampler2D " + this.uniformTextureName + ";\n";
+        }
         return text;
     }
 
@@ -75,6 +80,9 @@ var FragmentShaderService = function(item){
         }
         if(this.getVaryingNormalsName() != null){
             text += "varying vec3 " + this.getVaryingNormalsName() + ";\n";
+        }
+        if(this.varyingUVCoordsName != null){
+            text += "varying vec2 " + this.varyingUVCoordsName + ";\n";
         }
         return text;
     }
@@ -117,12 +125,15 @@ var FragmentShaderService = function(item){
                     text +="float lightfactor = dot(normal,";
                     text += this.getUniformDirectDirectionName() +");\n";                    
                 }
-                this.getAttributes().forEach(attribute =>{
-                    if(attribute.getKind() == AttributeKind.COLOR){
-                        text += "gl_FragColor = " + attribute.getName().replace("a_","v_") + ";\n";    
-                    }
-                    
-                });
+                if(this.varyingColorName != null
+                    && this.varyingUVCoordsName == null){
+                        text += "gl_FragColor = " + this.varyingColorName + ";\n";
+                }
+                if(this.varyingUVCoordsName != null){
+                    text += "gl_FragColor = texture2D("
+                        + this.uniformTextureName + ","
+                        + this.varyingUVCoordsName + ");\n";
+                }                
                 if(this.getVaryingNormalsName()!=null
                     && this.getUniformDirectDirectionName()!=null){
                     text += "gl_FragColor.rgb *= lightfactor;\n"; 
@@ -141,6 +152,9 @@ var FragmentShaderService = function(item){
         if(uniform.getKind() == UniformKind.DIRECTLIGHT){
             this.setUniformDirectDirectionName(uniform.getName());
         }
+        if(uniform.getKind() == UniformKind.TEXTURE){
+            this.uniformTextureName = uniform.getName();
+        }
     })  
 
     this.setAttributes(item.getAttributes());
@@ -150,6 +164,9 @@ var FragmentShaderService = function(item){
         }
         if(attribute.getKind() == AttributeKind.NORMALS){
             this.setVaryingNormalsName(attribute.getName().replace("a_","v_"));
+        }
+        if(attribute.getKind() == AttributeKind.UVCOORDS){
+            this.varyingUVCoordsName = attribute.getName().replace("a_","v_");
         }
     }) 
 

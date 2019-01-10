@@ -129,6 +129,35 @@ var Gl = {
         }
     },    
 
+    createTexture : function(){
+        var texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA
+            ,this.gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]));
+        return texture;
+    },
+
+    setTexture : function(newTexture, newImage){
+        var image = new Image();        
+        image.src = newImage;
+        image.tag = this.gl;
+
+        image.addEventListener('load', function() {          
+            image.tag.bindTexture(image.tag.TEXTURE_2D, newTexture);
+            image.tag.texImage2D(image.tag.TEXTURE_2D, 0, image.tag.RGBA, 
+                image.tag.RGBA,image.tag.UNSIGNED_BYTE, image);
+
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {    
+                image.tag.generateMipmap(image.tag.TEXTURE_2D);
+            }
+            else{
+                image.tag.texParameteri(image.tag.TEXTURE_2D, image.tag.TEXTURE_WRAP_S, image.tag.CLAMP_TO_EDGE);
+                image.tag.texParameteri(image.tag.TEXTURE_2D, image.tag.TEXTURE_WRAP_T, image.tag.CLAMP_TO_EDGE);
+                image.tag.texParameteri(image.tag.TEXTURE_2D, image.tag.TEXTURE_MIN_FILTER, image.tag.LINEAR); 
+            }
+        });
+    },
+
     setDrawModes : function(){   
         //this.gl.enable(this.gl.CULL_FACE);     
         this.gl.enable(this.gl.DEPTH_TEST);
