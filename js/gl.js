@@ -130,7 +130,7 @@ var Gl = {
     },    
 
     setDrawModes : function(){   
-        //this.gl.enable(this.gl.CULL_FACE);     
+        this.gl.enable(this.gl.CULL_FACE);     
         this.gl.enable(this.gl.DEPTH_TEST);
     },
 
