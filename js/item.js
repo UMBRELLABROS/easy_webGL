@@ -68,7 +68,8 @@ var ItemService = function(){
         var normals = prop.getNormals(); 
         var indices = prop.getIndices();   
         var image = prop.image;
-        var uvCoords = prop.uvCoords;    
+        var uvCoords = prop.uvCoords;   
+        var geometry = prop.geometry; 
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
         this.setRotation = prop.setRotation;
@@ -81,11 +82,19 @@ var ItemService = function(){
             }            
         });
        
-        var coordsAttribute = new AttributeService();   
-        this.setCountIndices(coords.length/3);            
-        coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
-        coordsAttribute.createBuffer();
-        this.getAttributes().push(coordsAttribute);
+        if(geometry != null){
+            coords = geometry.coords;
+            indices = geometry.indices;
+            uvCoords = geometry.uvCoords;
+        }
+
+        if(coords != null){
+            var coordsAttribute = new AttributeService();   
+            this.setCountIndices(coords.length/3);            
+            coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);
+            coordsAttribute.createBuffer();
+            this.getAttributes().push(coordsAttribute);
+        }
 
         if(indices != null){
             var indexAttribute = new AttributeService();
@@ -135,7 +144,7 @@ var ItemService = function(){
             this.getUniforms().push(matrixUniform);            
         }
 
-        if(uvCoords != null){
+        if(uvCoords != null && image!= null){
             var uvCoordsAttribute = new AttributeService();
             uvCoordsAttribute.create(AttributeKind.UVCOORDS, "a_uv_coords", uvCoords);
             uvCoordsAttribute.createBuffer();
@@ -143,7 +152,7 @@ var ItemService = function(){
             this.getAttributes().push(uvCoordsAttribute); 
         }
         
-        if(image != null){
+        if(image != null && uvCoords != null){
             var texture = new TextureService();
             texture.preLoad();
 

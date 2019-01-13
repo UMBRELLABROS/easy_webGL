@@ -4,12 +4,13 @@ var Prop = function(){
     this.indices = null;
     this.image = null;
     this.uvCoords = null;
+    this.geometry = null;
        
 }
 
 var PropService = function(newProp){
 
-    var coords;
+    var coords = null;
     var color = null;
     var colorArray = null;
     var surface = null;
@@ -67,6 +68,8 @@ var PropService = function(newProp){
     if (newProp.hasOwnProperty("uvCoords")) {
         this.uvCoords = newProp.uvCoords;                 
     }
-    
+    if (newProp.hasOwnProperty("geometry")) {
+        this.geometry = newProp.geometry;
+    }    
 }
 PropService.prototype = new Prop;

@@ -163,4 +163,60 @@ describe('FragmentShader', () =>{
         });
     });  
 
+    describe('simple texture directLight shader',() =>{  
+        beforeEach( () => {
+            var prop = new PropService({coords:[-0.25,-0.25,0,0.25,-0.25,0,0,0.25,0],
+                uvCoords:[1.0,0.0,0.0,1.0,
+                    0.0,1.0,0.0,1.0,
+                    0.0,0.0,1.0,1.0],
+                normals:[1,0,0, 1,0,0, 1,0,0]});
+                var coords = prop.getCoords();    
+                var coordsAttribute = new AttributeService();               
+                coordsAttribute.create(AttributeKind.COORDS, "a_coords", coords);   
+    
+                var normals = prop.getCoords();    
+                var normalsAttribute = new AttributeService();               
+                normalsAttribute.create(AttributeKind.NORMALS, "a_normals", normals); 
+                
+                var uvCoordsArray = prop.uvCoords;
+                var uvCoordsAtribute = new AttributeService();
+                uvCoordsAtribute.create(AttributeKind.UVCOORDS, "a_uvcoords", uvCoordsArray);   
+                
+                var matrixUniform = new UniformService();
+                var identityMatrix = [1,0,0,0,
+                    0,1,0,0,
+                    0,0,1,0,
+                    0,0,0,1];
+                var matrix = identityMatrix;
+                matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
+    
+                var directLightUniform = new UniformService();            
+                var direction = [1,1,1];
+                directLightUniform.create(UniformKind.DIRECTLIGHT, "u_direct_direction", direction); 
+    
+                var textureUniform = new UniformService();
+                textureUniform.create(UniformKind.TEXTURE, "u_texture", null);
+    
+                item.setAttributes([coordsAttribute, uvCoordsAtribute, normalsAttribute]);
+                item.setUniforms([matrixUniform, directLightUniform, textureUniform]);
+
+            fragmentShader = new FragmentShaderService(item);
+        });
+
+        it('should create correct code', () =>{
+            let text = 'precision mediump float;\n'+
+            'uniform vec3 u_direct_direction;\n'+
+            'uniform sampler2D u_texture;\n'+
+            'varying vec3 v_normals;\n'+
+            'varying vec2 v_uvcoords;\n'+
+            'void main(){\n'+
+            'vec3 normal = normalize(v_normals);\n'+
+            'float lightfactor = dot(normal,u_direct_direction);\n'+
+            'gl_FragColor = texture2D(u_texture,v_uvcoords);\n'+
+            'gl_FragColor.rgb *= lightfactor;\n'+
+            '}\n';
+            expect(fragmentShader.getCode()).to.equal(text);
+        });
+    });  
+
 });
