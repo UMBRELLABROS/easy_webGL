@@ -84,8 +84,9 @@ var ItemService = function(){
        
         if(geometry != null){
             coords = geometry.coords;
-            indices = geometry.indices;
+            normals = geometry.normals;
             uvCoords = geometry.uvCoords;
+            indices = geometry.indices;
         }
 
         if(coords != null){

@@ -64,13 +64,17 @@
    
     var director = new DirectorController(canvas);
 
-    var actor1 = new PropService({geometry:cube});
+    var actor1 = new PropService({
+      geometry:cube, 
+      color : [0,1,1,1],
+      position:[0,0,0]
+    });
          
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
     light1.setDirection([-0.2, -0.2, -1]);            
 
-    var scene = new SceneService([actor1 ],[],[]);
+    var scene = new SceneService([actor1 ],[light1],[]);
 
     director.addScene([scene]);
 

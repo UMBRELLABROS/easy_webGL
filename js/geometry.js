@@ -4,6 +4,7 @@ Geometry = function() {
     this.coords = [];
     this.normals = [];
     this.uvCoords = [];
+    this.indices = [];
 };
     
 Geometry.fromPolygons = function(polygons) {
@@ -13,6 +14,7 @@ Geometry.fromPolygons = function(polygons) {
         geometry.coords = data.coords;
         geometry.normals = data.normals;
         geometry.uvCoords = data.uvCoords;
+        geometry.indices = data.indices;
         return geometry;
 };
 
@@ -20,17 +22,23 @@ Geometry.fromPolygons = function(polygons) {
 Geometry.buildData = function(polygons){
     var coords = [];
     var normals = [];
+    var indices = [];
     var uvCoords = [];
+    var o = 0;
     polygons.map(function(polygon){        
         polygon.vertices.forEach(vertex => {            
             coords.push(vertex.pos.x,vertex.pos.y,vertex.pos.z); 
             normals.push(vertex.normal.x,vertex.normal.y,vertex.normal.z);           
             uvCoords.push(vertex.uv.u,vertex.uv.v);
         });             
+        indices.push(0 + o, 2 + o, 1 + o ,
+           0 + o, 3 + o, 2 + o); 
+        o += 4; 
     });    
-    return {coords:coords,
-            normals:normals,
-            uvCoords:uvCoords}
+    return {coords: coords,
+            normals: normals,
+            uvCoords: uvCoords,
+            indices: indices}
 }
 
   
@@ -40,12 +48,12 @@ Geometry.cube = function(options) {
     var r = !options.radius ? [1, 1, 1] : options.radius.length ?
                 options.radius : [options.radius, options.radius, options.radius];
     return Geometry.fromPolygons([
-        [[0, 4, 6, 2], [-1, 0, 0],[3, 1, 0, 2]],
-        [[1, 3, 7, 5], [+1, 0, 0],[3, 1, 0, 2]],
-        [[0, 1, 5, 4], [0, -1, 0],[3, 1, 0, 2]],
-        [[2, 6, 7, 3], [0, +1, 0],[3, 1, 0, 2]],
-        [[0, 2, 3, 1], [0, 0, -1],[3, 1, 0, 2]],
-        [[4, 5, 7, 6], [0, 0, +1],[3, 1, 0, 2]]
+        [[0, 4, 6, 2], [-1, 0, 0], [3, 1, 0, 2]],
+        [[1, 3, 7, 5], [+1, 0, 0], [3, 1, 0, 2]],
+        [[0, 1, 5, 4], [0, -1, 0], [3, 1, 0, 2]],
+        [[2, 6, 7, 3], [0, +1, 0], [3, 1, 0, 2]],
+        [[0, 2, 3, 1], [0, 0, -1], [3, 1, 0, 2]],
+        [[4, 5, 7, 6], [0, 0, +1], [3, 1, 0, 2]]
     ].map(function(info) {
         return new Geometry.Polygon((info[0]).map(function(i,id) {
         var pos = new Geometry.Vector(

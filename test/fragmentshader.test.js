@@ -106,6 +106,7 @@ describe('FragmentShader', () =>{
         it('should create correct code', () =>{
             let text = 'precision mediump float;\n'+
             'void main(){\n'+
+            'gl_FragColor = vec4(1,0,0,1);\n'+
             '}\n';
             expect(fragmentShader.getCode()).to.equal(text);
         });
