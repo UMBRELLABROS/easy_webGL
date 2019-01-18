@@ -9,7 +9,7 @@ Geometry = function () {
 
 Geometry.fromPolygons = function (polygons) {
   var geometry = new Geometry();
-  var data = Geometry.buildData(polygons);
+  var data = Geometry.buildDataCube(polygons);
   geometry.polygons = polygons;
   geometry.coords = data.coords;
   geometry.normals = data.normals;
@@ -19,7 +19,7 @@ Geometry.fromPolygons = function (polygons) {
 };
 
 
-Geometry.buildData = function (polygons) {
+Geometry.buildDataCube = function (polygons) {
   var coords = [];
   var normals = [];
   var indices = [];
@@ -31,9 +31,15 @@ Geometry.buildData = function (polygons) {
       normals.push(vertex.normal.x, vertex.normal.y, vertex.normal.z);
       uvCoords.push(vertex.uv.u, vertex.uv.v);
     });
-    indices.push(0 + o, 2 + o, 1 + o,
-      0 + o, 3 + o, 2 + o);
-    o += 4;
+    if (polygon.vertices.length == 4) {
+      indices.push(0 + o, 2 + o, 1 + o,
+        0 + o, 3 + o, 2 + o);
+      o += 4;
+    }
+    else {
+      indices.push(0 + o, 1 + o, 2 + o);
+      o += 3;
+    }
   });
   return {
     coords: coords,
@@ -42,6 +48,7 @@ Geometry.buildData = function (polygons) {
     indices: indices
   }
 }
+
 
 
 Geometry.cube = function (options) {
@@ -71,6 +78,42 @@ Geometry.cube = function (options) {
     }));
   }));
 };
+
+Geometry.sphere = function (options) {
+  options = options || {};
+  var c = new Geometry.Vector(options.center || [0, 0, 0]);
+  var r = options.radius || 1;
+  var slices = options.slices || 16;
+  var stacks = options.stacks || 8;
+  var polygons = [], vertices;
+
+  function vertex(theta, phi) {
+    var u = theta;
+    var v = phi;
+    theta *= Math.PI * 2;
+    phi *= Math.PI;
+    var dir = new Geometry.Vector(
+      Math.cos(theta) * Math.sin(phi),
+      Math.cos(phi),
+      Math.sin(theta) * Math.sin(phi)
+    );
+    var uv = new Geometry.UV(u, v);
+    vertices.push(new Geometry.Vertex(c.plus(dir.times(r)), dir, uv));
+  }
+
+  for (var i = 0; i < slices; i++) {
+    for (var j = 0; j < stacks; j++) {
+      vertices = [];
+      vertex(i / slices, j / stacks);
+      if (j > 0) vertex((i + 1) / slices, j / stacks);
+      if (j < stacks - 1) vertex((i + 1) / slices, (j + 1) / stacks);
+      vertex(i / slices, (j + 1) / stacks);
+      polygons.push(new Geometry.Polygon(vertices));
+    }
+  }
+  return Geometry.fromPolygons(polygons);
+};
+
 
 Geometry.UV = function (u, v) {
   if (arguments.length == 2) {

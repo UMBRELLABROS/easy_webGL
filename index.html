@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />       
-    <title> Würfel mit Math.js </title>    
+    <title> Würfel & Kugel mit Math.js </title>    
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
     <script src="js/geometry.js"></script>
@@ -31,6 +31,7 @@
     
     <div id='canvas_container' ></div>      
 
+    Cube<br>
     <button onclick="rotate(-0.02,0,0)">Rotate -X</button> 
     <button onclick="rotate(+0.02,0,0)">Rotate +X</button>
     <br>
@@ -40,7 +41,17 @@
     <button onclick="rotate(0, 0,-0.02)">Rotate -Z</button> 
     <button onclick="rotate(0, 0,+0.02)">Rotate +Z</button>
     <br>
-   
+    <br>
+    Moon<br>
+    <button onclick="rotateProp1(-0.005,0,0)">Rotate -X</button> 
+    <button onclick="rotateProp1(+0.005,0,0)">Rotate +X</button>
+    <br>
+    <button onclick="rotateProp1(0,-0.005,0)">Rotate -Y</button> 
+    <button onclick="rotateProp1(0,+0.005,0)">Rotate +Y</button>
+    <br>
+    <button onclick="rotateProp1(0,0,-0.005)">Rotate -Z</button> 
+    <button onclick="rotateProp1(0,0,+0.005)">Rotate +Z</button>
+    <br>
           
   </body>
 
@@ -61,21 +72,29 @@
     
 
     var cube = Geometry.cube({radius:0.3});
+    var sphere = Geometry.sphere({radius:0.9,stacks:25,slices:25});
    
     var director = new DirectorController(canvas);
 
     var actor1 = new PropService({
       geometry:cube, 
-      // color : [0,1,1,1],
-      image : "misc/flower.jpg",
-      position:[0,0,0]
+      color : [0,1,1,1],
+      //image : "misc/flower.jpg",
+      position:[-0.8,0,0]
     });
+
+    var prop1 = new PropService({
+      geometry:sphere, 
+      //color : [0,1,1,1], 
+      image : "misc/2k_moon.jpg",     
+      position:[0.4,0,0]
+    })
          
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
     light1.setDirection([-0.2, -0.2, -1]);            
 
-    var scene = new SceneService([actor1 ],[light1],[]);
+    var scene = new SceneService([actor1 , prop1],[light1],[]);
 
     director.addScene([scene]);
 
@@ -83,7 +102,12 @@
 
     function rotate(valueX,valueY,valueZ){
         actor1.setRotation([valueX,valueY,valueZ]);
-        director.action();
+        // director.action();
+    }
+
+    function rotateProp1(valueX,valueY,valueZ){
+        prop1.setRotation([valueX,valueY,valueZ]);
+        // director.action();
     }
 
 

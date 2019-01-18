@@ -7,6 +7,7 @@ var Item = function () {
     this.countIndices;
     this.countElements;
     this.drawKind = DrawKind.TRIANGLE;
+    this.basePosition = [0, 0, 0];
 
     // getter, setter
     this.setProgram = function (newProgram) { this.program = newProgram; }
@@ -135,12 +136,8 @@ var ItemService = function () {
 
         if (position != null) {
             var matrixUniform = new UniformService();
-
             var matrix = m4.identity();
-            if (position != null) {
-                matrix = m4.translate(matrix, position[0], position[1], position[2])
-            }
-
+            this.basePosition = position;
             matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
             this.getUniforms().push(matrixUniform);
         }
@@ -201,6 +198,8 @@ var ItemService = function () {
             if (uniform.getKind() == UniformKind.MATRIX) {
 
                 var matrix = m4.identity()
+                var p = this.basePosition;
+                matrix = m4.translate(matrix, p[0], p[1], p[2]);
 
                 matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
 
