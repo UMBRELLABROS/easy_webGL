@@ -8,6 +8,8 @@ var Item = function () {
     this.countElements;
     this.drawKind = DrawKind.TRIANGLE;
     this.basePosition = [0, 0, 0];
+    this.perspectiveMatrix = [];
+    this.activeCamera = null;
 
     // getter, setter
     this.setProgram = function (newProgram) { this.program = newProgram; }
@@ -61,7 +63,7 @@ var ItemService = function () {
         // TODO: check uniforms        
     }
 
-    this.create = function (prop, lights, camera) {
+    this.create = function (prop, lights, cameras) {
         var coords = prop.getCoords();
         var color = prop.getColor();
         var colorArray = prop.getColorArray();
@@ -82,6 +84,16 @@ var ItemService = function () {
                 directLight = light.getDirection();
             }
         });
+
+        cameras.forEach(camera => {
+            this.activeCamera = 0;
+            if (camera.kind == CameraKind.MAIN) {
+                camera.aspectRatio = Gl.getDisplay()[0] / Gl.getDisplay()[1];
+                camera.buildMatrix();
+                this.perspectiveMatrix[0] = camera.matrix;
+            }
+        })
+
 
         if (geometry != null) {
             coords = geometry.coords;
@@ -201,7 +213,12 @@ var ItemService = function () {
                 var p = this.basePosition;
                 matrix = m4.translate(matrix, p[0], p[1], p[2]);
 
-                matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
+                if (this.activeCamera == null) {
+                    matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
+                }
+                else {
+                    matrix = m4.multiply(this.perspectiveMatrix[this.activeCamera], matrix);
+                }
 
                 var velocity = this.getVelocity();
                 matrix = m4.translate(matrix, velocity[0] || 0, velocity[1] || 0, velocity[2] || 0);
@@ -215,6 +232,9 @@ var ItemService = function () {
                 matrix = m4.yRotate(matrix, actualRoation[1]);
                 matrix = m4.zRotate(matrix, actualRoation[2]);
                 this.setActualRotation(actualRoation)
+
+                var v = testPoint(matrix, 0, 0, 10, 1);
+                var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
                 uniform.setValue(matrix);
             }
@@ -234,7 +254,29 @@ var ItemService = function () {
 ItemService.prototype = new Item;
 
 
-
+// Ein Testpunkt, um zusehen, ob er im sichtbaren bereich (-1,1) liegt
+function testPoint(a, x, y, z, w) {
+    var a00 = a[0 * 4 + 0];
+    var a01 = a[0 * 4 + 1];
+    var a02 = a[0 * 4 + 2];
+    var a03 = a[0 * 4 + 3];
+    var a10 = a[1 * 4 + 0];
+    var a11 = a[1 * 4 + 1];
+    var a12 = a[1 * 4 + 2];
+    var a13 = a[1 * 4 + 3];
+    var a20 = a[2 * 4 + 0];
+    var a21 = a[2 * 4 + 1];
+    var a22 = a[2 * 4 + 2];
+    var a23 = a[2 * 4 + 3];
+    var a30 = a[3 * 4 + 0];
+    var a31 = a[3 * 4 + 1];
+    var a32 = a[3 * 4 + 2];
+    var a33 = a[3 * 4 + 3];
+    return [a00 * x + a10 * y + a20 * z + +a30 * w,
+    a01 * x + a11 * y + a21 * z + +a31 * w,
+    a02 * x + a12 * y + a22 * z + +a32 * w,
+    a03 * x + a13 * y + a23 * z + +a33 * w];
+};
 
 
 

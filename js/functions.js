@@ -57,6 +57,11 @@ var LightKind = Object.freeze({
     "DIRECT": 1,
     "POINT": 2
 });
+var CameraKind = Object.freeze({
+    "NONE": 0,
+    "MAIN": 1,
+    "SECOND": 2
+});
 var DrawKind = Object.freeze({ "TRIANGLE": 0, "ELEMENT": 1 });
 var ShaderKind = Object.freeze({ "VERTEX": 0, "FRAGMENT": 1 });
 var TargetKind = Object.freeze({ "ARRAY_BUFFER": 0, "ELEMENT_ARRAY_BUFFER": 1 });
