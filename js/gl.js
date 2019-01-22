@@ -128,6 +128,12 @@ var Gl = {
                     uniform.getValue()[0], uniform.getValue()[1],
                     uniform.getValue()[2]);
                 break;
+            case UniformKind.TEXTURE:
+                this.gl.activeTexture(this.gl.TEXTURE0 + uniform.textureIndex);
+                this.gl.uniform1i(uniform.getLocation(), uniform.textureIndex);
+                asdf
+                gl.bindTexture(gl.TEXTURE_2D, textures[0]); // 
+                break;
         }
     },
 

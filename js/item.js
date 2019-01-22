@@ -57,6 +57,16 @@ var ItemService = function () {
                 }
             });
         });
+        var newUniforms = newItem.getUniforms();
+        this.getUniforms().forEach(uniform => {
+            newUniforms.forEach(newUniform => {
+                if (!uniform.equals(newUniform)) {
+                    cntFound++;
+                    return;
+                }
+            })
+
+        })
         return cntFound > 0 ? false : true;
         // TODO: check uniforms        
     }
@@ -175,8 +185,11 @@ var ItemService = function () {
             var texture = new TextureService();
             texture.preLoad();
 
+            var count = texture.count(image);
+
             var textureUniform = new UniformService();
-            textureUniform.create(UniformKind.TEXTURE, "u_texture", texture);
+            textureUniform.textureIndex = count;
+            textureUniform.create(UniformKind.TEXTURE, "u_texture_" + count, texture);
             this.getUniforms().push(textureUniform);
 
             texture.load(image);
