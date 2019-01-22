@@ -72,8 +72,9 @@
     div.appendChild(title);
     
 
-    var cube = Geometry.cube({radius:3});
+    var cube = Geometry.cube({radius:5});
     var sphere = Geometry.sphere({radius:15,stacks:25,slices:25});
+    var sphereLight = Geometry.sphere({radius:0.5});
    
     var director = new DirectorController(canvas);
 
@@ -83,21 +84,44 @@
       geometry:cube, 
       color : [0,1,1,1],
       //image : "misc/flower.jpg",
-      position:[-8,0,20]
+      position:[-20, 0,40]
     });
+
+    var propC =[];
+    propC[0] = new PropService({geometry:cube, color : [0,1,1,1], position:[-20,-20,30]})
+    propC[1] = new PropService({geometry:cube, color : [0,1,1,1], position:[-20,-20,50]})
+    propC[2] = new PropService({geometry:cube, color : [0,1,1,1], position:[20,-20,30]})
+    propC[3] = new PropService({geometry:cube, color : [0,1,1,1], position:[20,-20,50]})
+
+    propC[4] = new PropService({geometry:cube, color : [0,1,1,1], position:[-20,20,30]})
+    propC[5] = new PropService({geometry:cube, color : [0,1,1,1], position:[-20,20,50]})
+    propC[6] = new PropService({geometry:cube, color : [0,1,1,1], position:[20,20,30]})
+    propC[7] = new PropService({geometry:cube, color : [0,1,1,1], position:[20,20,50]})
 
     var prop1 = new PropService({
       geometry:sphere, 
       //color : [0,1,1,1], 
       image : "misc/2k_moon.jpg",     
-      position:[10,0,30]
+      position:[10,0,35]
     })
+
+    
          
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
-    light1.setDirection([-0.7, -0.2, -0.2]);            
+    light1.setDirection([-0.9, -0.1, -0.0]);  
+    
+    var light2 = new LightService();
+    light2.setKind(LightKind.POINT);
+    light2.position = [22,-7,25];
+    propLight = new PropService({geometry:sphereLight, color : [1,1,1,1], position:light2.position})
 
-    var scene = new SceneService([actor1, prop1], [light1], [camera1]);
+    
+    propC.push(actor1);
+    propC.push(prop1);
+    propC.push(propLight);
+
+    var scene = new SceneService(propC, [light1, light2], [camera1]);
 
     director.addScene([scene]);
 

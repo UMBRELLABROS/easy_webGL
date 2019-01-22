@@ -48,9 +48,12 @@ var AttributeKind = Object.freeze({
 var UniformKind = Object.freeze({
     "NONE": 0,
     "COLOR": 1,
-    "MATRIX": 2,
-    "TEXTURE": 3,
-    "DIRECTLIGHT": 4
+    "OBJECTMATRIX": 2,
+    "FRUSTUMMATRIX": 3,
+    "CAMERAMATRIX": 4,
+    "TEXTURE": 5,
+    "DIRECTLIGHT": 6,
+    "POINTLIGHT": 7
 });
 var LightKind = Object.freeze({
     "NONE": 0,

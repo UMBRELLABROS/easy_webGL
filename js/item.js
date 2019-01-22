@@ -8,7 +8,6 @@ var Item = function () {
     this.countElements;
     this.drawKind = DrawKind.TRIANGLE;
     this.basePosition = [0, 0, 0];
-    this.perspectiveMatrix = [];
     this.activeCamera = null;
 
     // getter, setter
@@ -47,7 +46,6 @@ var ItemService = function () {
     }
 
 
-
     this.equals = function (newItem) {
         var cntFound = 0
         var newAttributes = newItem.getAttributes();
@@ -79,9 +77,13 @@ var ItemService = function () {
         this.getRotation = prop.getRotation;
 
         var directLight = null;
+        var lightPosition = null;
         lights.forEach(light => {
             if (light.getKind() == LightKind.DIRECT) {
                 directLight = light.getDirection();
+            }
+            if (light.getKind() == LightKind.POINT) {
+                lightPosition = light.position;
             }
         });
 
@@ -90,10 +92,11 @@ var ItemService = function () {
             if (camera.kind == CameraKind.MAIN) {
                 camera.aspectRatio = Gl.getDisplay()[0] / Gl.getDisplay()[1];
                 camera.buildMatrix();
-                this.perspectiveMatrix[0] = camera.matrix;
+                var frustumMatrixUniform = new UniformService();
+                frustumMatrixUniform.create(UniformKind.FRUSTUMMATRIX, "u_frustum_matrix", camera.matrix);
+                this.getUniforms().push(frustumMatrixUniform);
             }
         })
-
 
         if (geometry != null) {
             coords = geometry.coords;
@@ -132,6 +135,12 @@ var ItemService = function () {
             this.getUniforms().push(directLightUniform);
         }
 
+        if (lightPosition != null) {
+            var pointLightUniform = new UniformService();
+            pointLightUniform.create(UniformKind.POINTLIGHT, "u_light_position", lightPosition);
+            this.getUniforms().push(pointLightUniform);
+        }
+
         if (color != null) {
             var colorUniform = new UniformService();
             colorUniform.create(UniformKind.COLOR, "u_color", color);
@@ -150,7 +159,7 @@ var ItemService = function () {
             var matrixUniform = new UniformService();
             var matrix = m4.identity();
             this.basePosition = position;
-            matrixUniform.create(UniformKind.MATRIX, "u_matrix", matrix);
+            matrixUniform.create(UniformKind.OBJECTMATRIX, "u_object_matrix", matrix);
             this.getUniforms().push(matrixUniform);
         }
 
@@ -188,7 +197,6 @@ var ItemService = function () {
             var programService = new ProgramService();
             program = programService.create(vertexShaderCode, fragmentShaderCode);
         }
-        var test = Gl.getAttributeLocation(program, "a_color");
 
         this.getAttributes().forEach(attribute => {
             attribute.setLocation(Gl.getAttributeLocation(program, attribute.getName()));
@@ -207,18 +215,18 @@ var ItemService = function () {
         });
 
         this.getUniforms().forEach(uniform => {
-            if (uniform.getKind() == UniformKind.MATRIX) {
+            if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
 
                 var matrix = m4.identity()
                 var p = this.basePosition;
                 matrix = m4.translate(matrix, p[0], p[1], p[2]);
 
-                if (this.activeCamera == null) {
-                    matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
-                }
-                else {
-                    matrix = m4.multiply(this.perspectiveMatrix[this.activeCamera], matrix);
-                }
+                // if (this.activeCamera == null) {
+                //     matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
+                // }
+                // else {
+                //     matrix = m4.multiply(this.perspectiveMatrix[this.activeCamera], matrix);
+                // }
 
                 var velocity = this.getVelocity();
                 matrix = m4.translate(matrix, velocity[0] || 0, velocity[1] || 0, velocity[2] || 0);
@@ -233,6 +241,7 @@ var ItemService = function () {
                 matrix = m4.zRotate(matrix, actualRoation[2]);
                 this.setActualRotation(actualRoation)
 
+                // DEBUG    
                 var v = testPoint(matrix, 0, 0, 10, 1);
                 var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
