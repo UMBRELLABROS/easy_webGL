@@ -83,8 +83,8 @@ var FragmentShaderService = function (item) {
 
         if (this.varyingNormalsName != null &&
             this.uniformDirectDirectionName != null) {
-            text += "float lightfactor = dot(normal,";
-            text += this.uniformDirectDirectionName + ");\n";
+            text += "float lightfactor = clamp(dot(normal,";
+            text += this.uniformDirectDirectionName + "),0.0,1.0);\n";
         }
 
         if (this.varyingLightPosition != null) {
@@ -124,21 +124,7 @@ var FragmentShaderService = function (item) {
         if (this.varyingNormalsName != null
             && this.uniformDirectDirectionName != null
             && this.varyingLightPosition != null) {
-
-            text += "if(pointfactor>0.0){\n";
-            //text += "gl_FragColor.rgb *= min((lightfactor+pointfactor),1.0);\n";
-            text += "if ((lightfactor>pointfactor) ) {\n";
-            text += "gl_FragColor = vec4(min(lightfactor+pointfactor,1.0),lightfactor+pointfactor,lightfactor,1);\n";
-            text += "}\n";
-            text += "else  {\n";
-            text += "gl_FragColor = vec4(pointfactor,pointfactor,pointfactor,1);\n";
-            text += "}\n";
-            text += "}\n";
-            text += "else  {\n";
-            text += "gl_FragColor = vec4(0,0,1,1);\n";
-            text += "}\n";
-            //text += "}\n";
-
+            text += "gl_FragColor.rgb *= min((lightfactor+pointfactor),1.0);\n";
         }
 
         return text;

@@ -141,6 +141,7 @@ var Gl = {
 
     setTexture: function (newTexture, newImage) {
         var image = new Image();
+        image.crossOrigin = "";
         image.src = newImage;
         image.tag = this.gl;
 
