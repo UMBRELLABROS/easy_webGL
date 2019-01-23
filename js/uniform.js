@@ -5,6 +5,7 @@ var Uniform = function () {
     this.kind;
     this.name;
     this.textureIndex;
+    this.texture;
 
     this.setLocation = function (newLocation) { this.location = newLocation; }
     this.getLocation = function () { return this.location; }

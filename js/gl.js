@@ -131,8 +131,7 @@ var Gl = {
             case UniformKind.TEXTURE:
                 this.gl.activeTexture(this.gl.TEXTURE0 + uniform.textureIndex);
                 this.gl.uniform1i(uniform.getLocation(), uniform.textureIndex);
-                asdf
-                gl.bindTexture(gl.TEXTURE_2D, textures[0]); // 
+                this.gl.bindTexture(this.gl.TEXTURE_2D, uniform.texture); // 
                 break;
         }
     },
@@ -168,7 +167,7 @@ var Gl = {
     },
 
     setDrawModes: function () {
-        //this.gl.enable(this.gl.CULL_FACE);     
+        this.gl.enable(this.gl.CULL_FACE);
         this.gl.enable(this.gl.DEPTH_TEST);
     },
 

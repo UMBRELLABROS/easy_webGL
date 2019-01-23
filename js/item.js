@@ -189,6 +189,7 @@ var ItemService = function () {
 
             var textureUniform = new UniformService();
             textureUniform.textureIndex = count;
+            textureUniform.texture = texture.texture;
             textureUniform.create(UniformKind.TEXTURE, "u_texture_" + count, texture);
             this.getUniforms().push(textureUniform);
 
