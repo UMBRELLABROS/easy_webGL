@@ -6,11 +6,12 @@ var Camera = function () {
     this.near = 10;
     this.far = 400;
     this.aspectRatio = 16 / 9;
+    this.movement;
     this.matrix = null;
 }
 Camera.prototype = {
 
-    buildMatrix: function () {
+    buildProjectionMatrix: function () {
         var f, a, m, c;
         this.matrix = m4.identity();
         f = Math.tan(Math.PI / 2 - this.fieldOfView);

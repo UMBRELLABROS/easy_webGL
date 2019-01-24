@@ -63,7 +63,9 @@ var LightKind = Object.freeze({
 var CameraKind = Object.freeze({
     "NONE": 0,
     "MAIN": 1,
-    "SECOND": 2
+    "SECOND": 2,
+    "MATRIX": 3,
+    "LOOKAT": 4
 });
 var DrawKind = Object.freeze({ "TRIANGLE": 0, "ELEMENT": 1 });
 var ShaderKind = Object.freeze({ "VERTEX": 0, "FRAGMENT": 1 });

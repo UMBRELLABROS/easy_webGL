@@ -101,7 +101,7 @@ var ItemService = function () {
             this.activeCamera = 0;
             if (camera.kind == CameraKind.MAIN) {
                 camera.aspectRatio = Gl.getDisplay()[0] / Gl.getDisplay()[1];
-                camera.buildMatrix();
+                camera.buildProjectionMatrix();
                 var frustumMatrixUniform = new UniformService();
                 frustumMatrixUniform.create(UniformKind.FRUSTUMMATRIX, "u_frustum_matrix", camera.matrix);
                 this.getUniforms().push(frustumMatrixUniform);
