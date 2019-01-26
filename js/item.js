@@ -9,6 +9,7 @@ var Item = function () {
     this.drawKind = DrawKind.TRIANGLE;
     this.basePosition = [0, 0, 0];
     this.activeCamera = null;
+    this.dynamic = new Dynamic();
 
     // getter, setter
     this.setProgram = function (newProgram) { this.program = newProgram; }
@@ -68,7 +69,6 @@ var ItemService = function () {
 
         })
         return cntFound > 0 ? false : true;
-        // TODO: check uniforms        
     }
 
     this.create = function (prop, lights, cameras) {
@@ -81,6 +81,7 @@ var ItemService = function () {
         var image = prop.image;
         var uvCoords = prop.uvCoords;
         var geometry = prop.geometry;
+
         this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
         this.setRotation = prop.setRotation;
@@ -174,7 +175,7 @@ var ItemService = function () {
         if (position != null) {
             var matrixUniform = new UniformService();
             var matrix = m4.identity();
-            this.basePosition = position;
+            this.dynamic.basePosition = position;
             matrixUniform.create(UniformKind.OBJECTMATRIX, "u_object_matrix", matrix);
             this.getUniforms().push(matrixUniform);
         }
@@ -238,23 +239,23 @@ var ItemService = function () {
             if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
 
                 var matrix = m4.identity()
-                var p = this.basePosition;
+                var p = this.dynamic.basePosition;
                 matrix = m4.translate(matrix, p[0], p[1], p[2]);
                 var velocity = this.getVelocity();
-                matrix = m4.translate(matrix, velocity[0] || 0, velocity[1] || 0, velocity[2] || 0);
+                matrix = m4.translate(matrix, velocity[0], velocity[1], velocity[2]);
                 var rotation = this.getRotation();
-                var actualRoation = this.getActualRotation();
-                actualRoation[0] += rotation[0] || 0;
-                actualRoation[1] += rotation[1] || 0;
-                actualRoation[2] += rotation[2] || 0;
+                var actualRoation = this.dynamic.baseOrientation;
+                actualRoation[0] += rotation[0];
+                actualRoation[1] += rotation[1];
+                actualRoation[2] += rotation[2];
                 matrix = m4.xRotate(matrix, actualRoation[0]);
                 matrix = m4.yRotate(matrix, actualRoation[1]);
                 matrix = m4.zRotate(matrix, actualRoation[2]);
-                this.setActualRotation(actualRoation)
+                this.dynamic.baseOrientation = actualRoation;
 
                 // DEBUG    
-                //var v = testPoint(matrix, 0, 0, 10, 1);
-                //var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
+                var v = testPoint(matrix, 0, 0, 10, 1);
+                var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
                 uniform.setValue(matrix);
             }

@@ -13,10 +13,9 @@ var PropService = function (newProp) {
     var coords = null;
     var color = null;
     var colorArray = null;
-    var surface = null;
     var position = null;
-    var velocity = [];
-    var rotation = [];
+    var velocity = [0, 0, 0];
+    var rotation = [0, 0, 0];
 
     // getter, setter
     this.getVelocity = function () { return velocity; }
