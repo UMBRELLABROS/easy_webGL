@@ -120,6 +120,7 @@ var Gl = {
                 break;
             case UniformKind.OBJECTMATRIX:
             case UniformKind.FRUSTUMMATRIX:
+            case UniformKind.CAMERAMATRIX:
                 this.gl.uniformMatrix4fv(uniform.getLocation(), false, uniform.getValue());
                 break;
             case UniformKind.DIRECTLIGHT:

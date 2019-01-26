@@ -7,6 +7,7 @@ var VertexShader = function () {
     this.attributeUVCoordsName = null;
     this.uniformObjectMatrixName = null;
     this.uniformFrustumMatrixName = null;
+    this.uniformCameraMatrixName = null;
     this.uniformTextureName = null;
     this.uniformLightPosition = null;
     this.code = "";
@@ -61,6 +62,9 @@ var VertexShaderService = function (item) {
         if (this.uniformFrustumMatrixName != null) {
             text += "uniform mat4 " + this.uniformFrustumMatrixName + ";\n";
         }
+        if (this.uniformCameraMatrixName != null) {
+            text += "uniform mat4 " + this.uniformCameraMatrixName + ";\n";
+        }
         if (this.uniformLightPosition != null) {
             text += "uniform vec3 " + this.uniformLightPosition + ";\n";
         }
@@ -95,15 +99,26 @@ var VertexShaderService = function (item) {
     this.buildInnerMain = function () {
         var text = "";
         if (this.uniformObjectMatrixName != null &&
-            this.uniformFrustumMatrixName == null) {
+            this.uniformFrustumMatrixName == null &&
+            this.uniformCameraMatrixName == null) {
             text += "gl_Position = "
                 + this.uniformObjectMatrixName + "*"
                 + this.attributeCoordName + ";\n";
         }
         else if (this.uniformObjectMatrixName != null &&
-            this.uniformFrustumMatrixName != null) {
+            this.uniformFrustumMatrixName != null &&
+            this.uniformCameraMatrixName == null) {
             text += "gl_Position = "
                 + this.uniformFrustumMatrixName + "*"
+                + this.uniformObjectMatrixName + "*"
+                + this.attributeCoordName + ";\n";
+        }
+        else if (this.uniformObjectMatrixName != null &&
+            this.uniformFrustumMatrixName != null &&
+            this.uniformCameraMatrixName != null) {
+            text += "gl_Position = "
+                + this.uniformFrustumMatrixName + "*"
+                + this.uniformCameraMatrixName + "*"
                 + this.uniformObjectMatrixName + "*"
                 + this.attributeCoordName + ";\n";
         }
@@ -154,6 +169,9 @@ var VertexShaderService = function (item) {
         }
         if (uniform.getKind() == UniformKind.FRUSTUMMATRIX) {
             this.uniformFrustumMatrixName = uniform.getName();
+        }
+        if (uniform.getKind() == UniformKind.CAMERAMATRIX) {
+            this.uniformCameraMatrixName = uniform.getName();
         }
         if (uniform.getKind() == UniformKind.TEXTURE) {
             this.uniformTextureName = uniform.getName();

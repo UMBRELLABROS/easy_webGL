@@ -35,7 +35,7 @@ var DirectorController = function (canvas) {
     var renderLoop = function (timestamp) {
         if (!startTime) startTime = timestamp;
         var timeLap = timestamp - startTime;
-        if (timeLap > 5) {
+        if (timeLap > 20) {
             render();
             startTime = timestamp;
         }

@@ -103,8 +103,14 @@ var ItemService = function () {
                 camera.aspectRatio = Gl.getDisplay()[0] / Gl.getDisplay()[1];
                 camera.buildProjectionMatrix();
                 var frustumMatrixUniform = new UniformService();
-                frustumMatrixUniform.create(UniformKind.FRUSTUMMATRIX, "u_frustum_matrix", camera.matrix);
+                frustumMatrixUniform.create(UniformKind.FRUSTUMMATRIX, "u_frustum_matrix", camera.frustumMatrix);
                 this.getUniforms().push(frustumMatrixUniform);
+                if (camera.type == CameraKind.MATRIX) {
+                    camera.buildCameraMatrix();
+                    var cameraMatrixUniform = new UniformService();
+                    cameraMatrixUniform.create(UniformKind.CAMERAMATRIX, "u_camera_matrix", camera.cameraMatrix);
+                    this.getUniforms().push(cameraMatrixUniform);
+                }
             }
         })
 
@@ -234,17 +240,8 @@ var ItemService = function () {
                 var matrix = m4.identity()
                 var p = this.basePosition;
                 matrix = m4.translate(matrix, p[0], p[1], p[2]);
-
-                // if (this.activeCamera == null) {
-                //     matrix = m4.multiply(m4.projection(Gl.getDisplay()[0], Gl.getDisplay()[1], 100), matrix);
-                // }
-                // else {
-                //     matrix = m4.multiply(this.perspectiveMatrix[this.activeCamera], matrix);
-                // }
-
                 var velocity = this.getVelocity();
                 matrix = m4.translate(matrix, velocity[0] || 0, velocity[1] || 0, velocity[2] || 0);
-
                 var rotation = this.getRotation();
                 var actualRoation = this.getActualRotation();
                 actualRoation[0] += rotation[0] || 0;
@@ -256,8 +253,8 @@ var ItemService = function () {
                 this.setActualRotation(actualRoation)
 
                 // DEBUG    
-                var v = testPoint(matrix, 0, 0, 10, 1);
-                var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
+                //var v = testPoint(matrix, 0, 0, 10, 1);
+                //var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
                 uniform.setValue(matrix);
             }
