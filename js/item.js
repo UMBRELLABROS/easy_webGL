@@ -7,9 +7,8 @@ var Item = function () {
     this.countIndices;
     this.countElements;
     this.drawKind = DrawKind.TRIANGLE;
-    this.basePosition = [0, 0, 0];
     this.activeCamera = null;
-    this.dynamic = new Dynamic();
+
 
     // getter, setter
     this.setProgram = function (newProgram) { this.program = newProgram; }
@@ -28,7 +27,7 @@ var ItemService = function () {
 
     var attributes = [];
     var uniforms = [];
-    var actualRotation = [0, 0, 0];
+    this.dynamic = new Dynamic();
 
     // getter, setter
     this.setAttributes = function (newAttributes) {
@@ -82,21 +81,27 @@ var ItemService = function () {
         var uvCoords = prop.uvCoords;
         var geometry = prop.geometry;
 
-        this.setVelocity = prop.setVelocity;
         this.getVelocity = prop.getVelocity;
-        this.setRotation = prop.setRotation;
         this.getRotation = prop.getRotation;
+        this.getPosition = prop.getPosition;
 
-        var directLight = null;
-        var lightPosition = null;
         lights.forEach(light => {
             if (light.getKind() == LightKind.DIRECT) {
-                directLight = light.getDirection();
+                var directLight = light.getDirection();
+                var directLightUniform = new UniformService();
+                directLightUniform.create(UniformKind.DIRECTLIGHT, "u_direct_direction", directLight);
+                this.getUniforms().push(directLightUniform);
             }
             if (light.getKind() == LightKind.POINT) {
-                lightPosition = light.position;
+                var lightPosition = light.position;
+                var pointLightUniform = new UniformService();
+                pointLightUniform.create(UniformKind.POINTLIGHT, "u_light_position", lightPosition);
+                light.dynamic.translate = lightPosition;
+                pointLightUniform.dynamic = light.dynamic;
+                this.getUniforms().push(pointLightUniform);
             }
         });
+
 
         cameras.forEach(camera => {
             this.activeCamera = 0;
@@ -146,18 +151,6 @@ var ItemService = function () {
             this.getAttributes().push(normalAttribute);
         }
 
-        if (directLight != null) {
-            var directLightUniform = new UniformService();
-            directLightUniform.create(UniformKind.DIRECTLIGHT, "u_direct_direction", directLight);
-            this.getUniforms().push(directLightUniform);
-        }
-
-        if (lightPosition != null) {
-            var pointLightUniform = new UniformService();
-            pointLightUniform.create(UniformKind.POINTLIGHT, "u_light_position", lightPosition);
-            this.getUniforms().push(pointLightUniform);
-        }
-
         if (color != null) {
             var colorUniform = new UniformService();
             colorUniform.create(UniformKind.COLOR, "u_color", color);
@@ -175,7 +168,8 @@ var ItemService = function () {
         if (position != null) {
             var matrixUniform = new UniformService();
             var matrix = m4.identity();
-            this.dynamic.basePosition = position;
+            matrixUniform.dynamic = prop.dynamic;
+            matrixUniform.dynamic.translate = position;
             matrixUniform.create(UniformKind.OBJECTMATRIX, "u_object_matrix", matrix);
             this.getUniforms().push(matrixUniform);
         }
@@ -237,27 +231,17 @@ var ItemService = function () {
 
         this.getUniforms().forEach(uniform => {
             if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
-
-                var matrix = m4.identity()
-                var p = this.dynamic.basePosition;
-                matrix = m4.translate(matrix, p[0], p[1], p[2]);
-                var velocity = this.getVelocity();
-                matrix = m4.translate(matrix, velocity[0], velocity[1], velocity[2]);
-                var rotation = this.getRotation();
-                var actualRoation = this.dynamic.baseOrientation;
-                actualRoation[0] += rotation[0];
-                actualRoation[1] += rotation[1];
-                actualRoation[2] += rotation[2];
-                matrix = m4.xRotate(matrix, actualRoation[0]);
-                matrix = m4.yRotate(matrix, actualRoation[1]);
-                matrix = m4.zRotate(matrix, actualRoation[2]);
-                this.dynamic.baseOrientation = actualRoation;
+                var matrix = this.dynamic.buildMatrix(uniform.dynamic.translate, this.getRotation());
 
                 // DEBUG    
-                var v = testPoint(matrix, 0, 0, 10, 1);
-                var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
+                // var v = testPoint(matrix, 0, 0, 10, 1);
+                // var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
                 uniform.setValue(matrix);
+            }
+
+            if (uniform.getKind() == UniformKind.POINTLIGHT) {
+                uniform.setValue(uniform.dynamic.translate)
             }
 
             uniform.activate();

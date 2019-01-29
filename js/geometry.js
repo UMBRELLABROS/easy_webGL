@@ -37,7 +37,7 @@ Geometry.buildDataCube = function (polygons) {
       o += 4;
     }
     else {
-      indices.push(0 + o, 1 + o, 2 + o);
+      indices.push(0 + o, 2 + o, 1 + o);
       o += 3;
     }
   });

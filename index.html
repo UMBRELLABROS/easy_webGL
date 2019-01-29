@@ -54,6 +54,24 @@
     <button onclick="rotateProp1(0,0,-0.005)">Rotate -Z</button> 
     <button onclick="rotateProp1(0,0,+0.005)">Rotate +Z</button>
     <br>
+
+    <br>
+    <br>
+    Pointlight<br>
+    
+    <div class="slidecontainer">
+        X position
+       <input type="range" min="25" max="90" value="35" class="slider" id="lightX" 
+       onchange="lightPos();" oninput="lightPos();"> 
+       <br>
+       Y position
+       <input type="range" min="-30" max="30" value="0" class="slider" id="lightY" 
+       onchange="lightPos();" oninput="lightPos();"> 
+       Z position
+       <input type="range" min="20" max="90" value="30" class="slider" id="lightZ" 
+       onchange="lightPos();" oninput="lightPos();">      
+    </div>
+    <br>
           
   </body>
 
@@ -110,7 +128,7 @@
     
     var light2 = new LightService();
     light2.setKind(LightKind.POINT);
-    light2.position = [22,-7,21];
+    light2.position = [0,0,0];
     propLight = new PropService({geometry:sphereLight, color : [1,1,1,1], position:light2.position})
 
     
@@ -126,15 +144,20 @@
 
     function rotate(valueX,valueY,valueZ){
         actor1.setRotation([valueX,valueY,valueZ]);
-        // director.action();
     }
 
     function rotateProp1(valueX,valueY,valueZ){
         prop1.setRotation([valueX,valueY,valueZ]);
-        // director.action();
     }
 
-
+    function lightPos(){
+      var valueX = $('lightX').value;
+      var valueY = $('lightY').value;
+      var valueZ = $('lightZ').value;
+      light2.dynamic.translate = [valueX,valueY,valueZ];
+      propLight.dynamic.translate = [valueX,valueY,valueZ];      
+    }
+    lightPos();
     
     </script>
 

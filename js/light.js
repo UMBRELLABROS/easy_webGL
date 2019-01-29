@@ -3,6 +3,8 @@ var Light = function () {
     this.kind;
     this.direction = [];
     this.position = [];
+    this.velocity = [];
+    this.rotation = [];
 
 
     // getter, setter
@@ -12,6 +14,9 @@ var Light = function () {
 }
 
 var LightService = function () {
+
+    this.dynamic = new Dynamic();
+
     // getter, setter
     this.getDirection = function () { return this.direction; }
     this.setDirection = function (newDirection) {
