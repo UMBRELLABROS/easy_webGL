@@ -15,6 +15,8 @@ var Camera = function () {
 }
 Camera.prototype = {
 
+    dynamic: new Dynamic(),
+
     buildProjectionMatrix: function () {
         var f, a, m, c;
         this.frustumMatrix = m4.identity();

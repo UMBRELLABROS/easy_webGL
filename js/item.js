@@ -96,7 +96,7 @@ var ItemService = function () {
                 var lightPosition = light.position;
                 var pointLightUniform = new UniformService();
                 pointLightUniform.create(UniformKind.POINTLIGHT, "u_light_position", lightPosition);
-                light.dynamic.translate = lightPosition;
+                light.dynamic.position = lightPosition;
                 pointLightUniform.dynamic = light.dynamic;
                 this.getUniforms().push(pointLightUniform);
             }
@@ -116,6 +116,7 @@ var ItemService = function () {
                     var cameraMatrixUniform = new UniformService();
                     cameraMatrixUniform.create(UniformKind.CAMERAMATRIX, "u_camera_matrix", camera.cameraMatrix);
                     this.getUniforms().push(cameraMatrixUniform);
+                    cameraMatrixUniform.dynamic = camera.dynamic;
                 }
             }
         })
@@ -169,7 +170,7 @@ var ItemService = function () {
             var matrixUniform = new UniformService();
             var matrix = m4.identity();
             matrixUniform.dynamic = prop.dynamic;
-            matrixUniform.dynamic.translate = position;
+            matrixUniform.dynamic.position = position;
             matrixUniform.create(UniformKind.OBJECTMATRIX, "u_object_matrix", matrix);
             this.getUniforms().push(matrixUniform);
         }
@@ -231,7 +232,7 @@ var ItemService = function () {
 
         this.getUniforms().forEach(uniform => {
             if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
-                var matrix = this.dynamic.buildMatrix(uniform.dynamic.translate, this.getRotation());
+                var matrix = uniform.dynamic.buildMatrix();
 
                 // DEBUG    
                 // var v = testPoint(matrix, 0, 0, 10, 1);
@@ -240,8 +241,13 @@ var ItemService = function () {
                 uniform.setValue(matrix);
             }
 
+            if (uniform.getKind() == UniformKind.CAMERAMATRIX) {
+                var matrix = uniform.dynamic.buildCameraMatrix();
+                uniform.setValue(matrix);
+            }
+
             if (uniform.getKind() == UniformKind.POINTLIGHT) {
-                uniform.setValue(uniform.dynamic.translate)
+                uniform.setValue(uniform.dynamic.position)
             }
 
             uniform.activate();

@@ -14,20 +14,10 @@ var PropService = function (newProp) {
     var color = null;
     var colorArray = null;
     var position = null;
-    var velocity = [0, 0, 0];
-    var rotation = [0, 0, 0];
 
     this.dynamic = new Dynamic();
 
-    // getter, setter
-    this.getPosition = function () { return position; }
-    this.setPosition = function (newPosition) { position = newPosition; }
-
-    this.getVelocity = function () { return velocity; }
-    this.setVelocity = function (newVelocity) { velocity = newVelocity; }
-
-    this.getRotation = function () { return rotation; }
-    this.setRotation = function (newRotation) { rotation = newRotation; }
+    // getter, setter    
 
     this.setCoords = function (newCoords) { coords = newCoords; }
     this.getCoords = function () { return coords; }

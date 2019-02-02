@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />       
-    <title> Perspektive mit Math.js </title>    
+    <title> Kamera mit Math.js </title>    
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
     <script src="js/geometry.js"></script>
@@ -71,7 +71,7 @@
        <input type="range" min="20" max="90" value="30" class="slider" id="lightZ" 
        onchange="lightPos();" oninput="lightPos();">      
     </div>
-    <br>
+    
           
   </body>
 
@@ -92,6 +92,7 @@
     
 
     var cube = Geometry.cube({radius:15});
+    var cubeSmall = Geometry.cube({radius:5});
     var sphere = Geometry.sphere({radius:15,stacks:25,slices:25});
     var sphereLight = Geometry.sphere({radius:0.5});
    
@@ -99,8 +100,8 @@
 
     var camera1 = new Camera();
     camera1.type = CameraKind.MATRIX;
-    camera1.orientation = [0,0.6,0];
-    camera1.position = [30,0,10];
+    camera1.orientation = [0,0,0];
+    camera1.position = [0,0,0];
 
 
     var actor1 = new PropService({
@@ -110,6 +111,20 @@
       position:[-30, 0,40]
     });
 
+    var dummy = new PropService({
+      geometry:cubeSmall, 
+      color : [0,1,1,1],
+      //image : "misc/flower.jpg",
+      position:[-30, 0,-40]
+    });
+
+    var dummy2 = new PropService({
+      geometry:cubeSmall, 
+      color : [1,1,1,1],
+      //image : "misc/flower.jpg",
+      position:[30, 0,-40]
+    });
+
     var propC =[];
     
 
@@ -117,7 +132,7 @@
       geometry:sphere, 
       //color : [0,1,1,1], 
       image : "misc/2k_moon.jpg",     
-      position:[10,0,37]
+      position:[30,0,40]
     })
 
     
@@ -133,6 +148,8 @@
 
     
     propC.push(actor1);
+    propC.push(dummy);
+    propC.push(dummy2);
     propC.push(prop1);
     propC.push(propLight);
 
@@ -143,21 +160,38 @@
     director.action();
 
     function rotate(valueX,valueY,valueZ){
-        actor1.setRotation([valueX,valueY,valueZ]);
+        actor1.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function rotateProp1(valueX,valueY,valueZ){
-        prop1.setRotation([valueX,valueY,valueZ]);
+        prop1.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function lightPos(){
       var valueX = $('lightX').value;
       var valueY = $('lightY').value;
       var valueZ = $('lightZ').value;
-      light2.dynamic.translate = [valueX,valueY,valueZ];
-      propLight.dynamic.translate = [valueX,valueY,valueZ];      
+      light2.dynamic.position = [valueX,valueY,valueZ];
+      propLight.dynamic.position = [valueX,valueY,valueZ];      
     }
     lightPos();
+
+    var time = 0;
+    function rotateCamera(){
+      
+      var t = time/10000;
+      if(t>(Math.abs(Math.PI*2)))
+        time=0;
+      var r= 100;
+      var x= -r * Math.sin(t);
+      var z= r * Math.cos(t);
+      var ori = -t;
+      camera1.dynamic.orientation = [0,ori,0];
+      camera1.dynamic.position = [x,0,z];      
+      time += 40;
+      setTimeout("rotateCamera()",40);
+    }
+    rotateCamera();
     
     </script>
 
