@@ -100,8 +100,8 @@
 
     var camera1 = new Camera();
     camera1.type = CameraKind.LOOKAT;    
-    camera1.dynamic.position = [30, 0, -40];
-    camera1.dynamic.lookAt = [-30,0,-40];
+    camera1.dynamic.position = [100, 0, 40];
+    camera1.dynamic.lookAt = [30,0,40];
 
 
     var actor1 = new PropService({
@@ -189,7 +189,7 @@
       time += 40;
       setTimeout("rotateCamera()",40);
     }
-    //rotateCamera();
+    rotateCamera();
     
     </script>
 

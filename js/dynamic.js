@@ -82,7 +82,7 @@ Dynamic.prototype = {
       position.z,
       1
     ];*/
-    return [
+    var matrix = [
       xAxis.x,
       yAxis.x,
       zAxis.x,
@@ -95,10 +95,16 @@ Dynamic.prototype = {
       yAxis.z,
       zAxis.z,
       0,
-      -position.x,
-      -position.y,
-      -position.z,
+      0,
+      0,
+      0,
       1
     ];
+    return m4.translate(
+      matrix,
+      -this.position[0],
+      -this.position[1],
+      -this.position[2]
+    );
   }
 };
