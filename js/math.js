@@ -1,22 +1,11 @@
 var m4 = {
-
-  identity: function() {       
-    return [
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1,
-    ];
+  identity: function() {
+    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   },
 
-  projection: function(width, height, depth) {   
-    var aspect = height/width;    
-    return [
-      aspect, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1,
-    ];
+  projection: function(width, height, depth) {
+    var aspect = height / width;
+    return [aspect, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   },
 
   multiply: function(a, b) {
@@ -68,62 +57,37 @@ var m4 = {
       b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30,
       b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31,
       b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32,
-      b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33,
+      b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33
     ];
   },
-      
+
   translation: function(tx, ty, tz) {
-    return [
-        1,  0,  0,  0,
-        0,  1,  0,  0,
-        0,  0,  1,  0,
-        tx, ty, tz, 1,
-    ];
+    return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1];
   },
 
   xRotation: function(angleInRadians) {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
-    return [
-      1, 0, 0, 0,
-      0, c, -s, 0,
-      0, s, c, 0,
-      0, 0, 0, 1,
-    ];
+    return [1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1];
   },
 
   yRotation: function(angleInRadians) {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
-    return [
-      c, 0, s, 0,
-      0, 1, 0, 0,
-      -s, 0, c, 0,
-      0, 0, 0, 1,
-    ];
+    return [c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1];
   },
 
   zRotation: function(angleInRadians) {
     var c = Math.cos(angleInRadians);
     var s = Math.sin(angleInRadians);
 
-    return [
-        c, -s, 0, 0,
-       s, c, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1,
-    ];
+    return [c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   },
 
   scaling: function(sx, sy, sz) {
-    return [
-      sx, 0,  0,  0,
-      0, sy,  0,  0,
-      0,  0, sz,  0,
-      0,  0,  0,  1,
-    ];
+    return [sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1];
   },
 
   translate: function(m, tx, ty, tz) {
@@ -148,13 +112,78 @@ var m4 = {
 
   normalize: function(v) {
     var dst = [];
-    var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);    
+    var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     if (length > 0.00001) {
       dst[0] = v[0] / length;
       dst[1] = v[1] / length;
       dst[2] = v[2] / length;
     }
     return dst;
+  }
+};
+
+var VECTOR = function(x, y, z) {
+  if (arguments.length == 3) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  } else if ("x" in x) {
+    this.x = x.x;
+    this.y = x.y;
+    this.z = x.z;
+  } else {
+    this.x = x[0];
+    this.y = x[1];
+    this.z = x[2];
+  }
+};
+
+VECTOR.prototype = {
+  clone: function() {
+    return new VECTOR(this.x, this.y, this.z);
   },
 
+  negated: function() {
+    return new VECTOR(-this.x, -this.y, -this.z);
+  },
+
+  plus: function(a) {
+    return new VECTOR(this.x + a.x, this.y + a.y, this.z + a.z);
+  },
+
+  minus: function(a) {
+    return new VECTOR(this.x - a.x, this.y - a.y, this.z - a.z);
+  },
+
+  times: function(a) {
+    return new VECTOR(this.x * a, this.y * a, this.z * a);
+  },
+
+  dividedBy: function(a) {
+    return new VECTOR(this.x / a, this.y / a, this.z / a);
+  },
+
+  dot: function(a) {
+    return this.x * a.x + this.y * a.y + this.z * a.z;
+  },
+
+  lerp: function(a, t) {
+    return this.plus(a.minus(this).times(t));
+  },
+
+  length: function() {
+    return Math.sqrt(this.dot(this));
+  },
+
+  unit: function() {
+    return this.dividedBy(this.length());
+  },
+
+  cross: function(a) {
+    return new VECTOR(
+      this.y * a.z - this.z * a.y,
+      this.z * a.x - this.x * a.z,
+      this.x * a.y - this.y * a.x
+    );
+  }
 };

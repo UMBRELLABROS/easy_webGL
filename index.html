@@ -99,9 +99,9 @@
     var director = new DirectorController(canvas);
 
     var camera1 = new Camera();
-    camera1.type = CameraKind.MATRIX;
-    camera1.orientation = [0,0,0];
-    camera1.position = [0,0,0];
+    camera1.type = CameraKind.LOOKAT;    
+    camera1.dynamic.position = [30, 0, -40];
+    camera1.dynamic.lookAt = [-30,0,-40];
 
 
     var actor1 = new PropService({
@@ -183,15 +183,13 @@
       if(t>(Math.abs(Math.PI*2)))
         time=0;
       var r= 100;
-      var x= -r * Math.sin(t);
-      var z= r * Math.cos(t);
-      var ori = -t;
-      camera1.dynamic.orientation = [0,ori,0];
+      var x= r * Math.sin(t);
+      var z= r * Math.cos(t);     
       camera1.dynamic.position = [x,0,z];      
       time += 40;
       setTimeout("rotateCamera()",40);
     }
-    rotateCamera();
+    //rotateCamera();
     
     </script>
 
