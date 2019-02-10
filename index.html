@@ -61,14 +61,14 @@
     
     <div class="slidecontainer">
         X position
-       <input type="range" min="25" max="90" value="35" class="slider" id="lightX" 
+       <input type="range" min="-40" max="40" value="0" class="slider" id="lightX" 
        onchange="lightPos();" oninput="lightPos();"> 
        <br>
        Y position
-       <input type="range" min="-30" max="30" value="0" class="slider" id="lightY" 
+       <input type="range" min="-30" max="30" value="10" class="slider" id="lightY" 
        onchange="lightPos();" oninput="lightPos();"> 
        Z position
-       <input type="range" min="20" max="90" value="30" class="slider" id="lightZ" 
+       <input type="range" min="-50" max="50" value="0" class="slider" id="lightZ" 
        onchange="lightPos();" oninput="lightPos();">      
     </div>
     
@@ -90,9 +90,8 @@
     title.className = "div_footer";
     div.appendChild(title);
     
-
-    var cube = Geometry.cube({radius:15});
-    var cubeSmall = Geometry.cube({radius:5});
+   
+    var cube = Geometry.cube({radius:20});
     var sphere = Geometry.sphere({radius:15,stacks:25,slices:25});
     var sphereLight = Geometry.sphere({radius:0.5});
    
@@ -100,57 +99,48 @@
 
     var camera1 = new Camera();
     camera1.type = CameraKind.LOOKAT;    
-    camera1.dynamic.position = [100, 0, 40];
-    camera1.dynamic.lookAt = [30,0,40];
+    camera1.dynamic.position = [-30, 30, -100];
+    camera1.dynamic.lookAt = [-30, 0, -40];
 
 
-    var actor1 = new PropService({
-      geometry:cube, 
-      //color : [0,1,1,1],
-      image : "misc/flower.jpg",
-      position:[-30, 0,40]
+    var ball2 = new PropService({
+      geometry:sphere,      
+      image : "misc/2ball.jpg",
+      position:[-30, 0,40],      
+      shininess:6
     });
-
-    var dummy = new PropService({
-      geometry:cubeSmall, 
-      color : [0,1,1,1],
-      //image : "misc/flower.jpg",
-      position:[-30, 0,-40]
+    var ball8 = new PropService({
+      geometry:sphere,      
+      image : "misc/8ball.jpg",
+      position:[-30, 0,-40],      
+      shininess:50
     });
-
-    var dummy2 = new PropService({
-      geometry:cubeSmall, 
-      color : [1,1,1,1],
-      //image : "misc/flower.jpg",
-      position:[30, 0,-40]
+    var ball9 = new PropService({
+      geometry:sphere,     
+      image : "misc/9ball.jpg",
+      position:[30, 0,40]
     });
-
-    var propC =[];
-    
-
-    var prop1 = new PropService({
-      geometry:sphere, 
-      //color : [0,1,1,1], 
-      image : "misc/2k_moon.jpg",     
-      position:[30,0,40]
-    })
-
-    
+    var ball14 = new PropService({
+      geometry:sphere,    
+      image : "misc/14ball.jpg",
+      position:[30, 0,-40],      
+      shininess:6
+    });
          
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
-    light1.setDirection([-0.9, -0.1, -0.0]);  
+    light1.setDirection([-0., -0.9, -0.0]);  
     
     var light2 = new LightService();
     light2.setKind(LightKind.POINT);
     light2.position = [0,0,0];
     propLight = new PropService({geometry:sphereLight, color : [1,1,1,1], position:light2.position})
 
-    
-    propC.push(actor1);
-    propC.push(dummy);
-    propC.push(dummy2);
-    propC.push(prop1);
+    var propC =[];
+    propC.push(ball2);
+    propC.push(ball8);
+    propC.push(ball9);
+    propC.push(ball14);
     propC.push(propLight);
 
     var scene = new SceneService(propC, [light1, light2], [camera1]);
@@ -160,11 +150,11 @@
     director.action();
 
     function rotate(valueX,valueY,valueZ){
-        actor1.dynamic.rotate = [valueX,valueY,valueZ];
+        ball8.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function rotateProp1(valueX,valueY,valueZ){
-        prop1.dynamic.rotate = [valueX,valueY,valueZ];
+        ball14.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function lightPos(){
@@ -179,17 +169,17 @@
     var time = 0;
     function rotateCamera(){
       
-      var t = time/10000;
+      var t = time/5000;
       if(t>(Math.abs(Math.PI*2)))
         time=0;
       var r= 100;
       var x= r * Math.sin(t);
       var z= r * Math.cos(t);     
-      camera1.dynamic.position = [x,0,z];      
+      camera1.dynamic.position = [x,30,z];      
       time += 40;
       setTimeout("rotateCamera()",40);
     }
-    rotateCamera();
+      rotateCamera();
     
     </script>
 

@@ -1,168 +1,217 @@
 "use strict";
-var FragmentShader = function () {
+var FragmentShader = function() {
+  this.uniformColorName = null;
+  this.uniformDirectDirectionName = null;
+  this.uniformTextureName = null;
+  this.uniformShininess = null;
+  this.varyingColorName = null;
+  this.varyingNormalsName = null;
+  this.varyingUVCoordsName = null;
+  this.varyingLightPosition = null;
 
-    this.uniformColorName = null;
-    this.uniformDirectDirectionName = null;
-    this.uniformTextureName = null;
-    this.varyingColorName = null;
-    this.varyingNormalsName = null;
-    this.varyingUVCoordsName = null;
-    this.varyingLightPosition = null;
-    this.code;
+  this.code;
 
-    // getter, setter
-    this.getCode = function () { return this.code; }
-    this.setCode = function (newCode) { this.code = newCode; }
+  // getter, setter
+  this.getCode = function() {
+    return this.code;
+  };
+  this.setCode = function(newCode) {
+    this.code = newCode;
+  };
+};
 
-}
+var FragmentShaderService = function(item) {
+  // functions
 
-var FragmentShaderService = function (item) {
+  this.buildUniforms = function() {
+    var text = "";
+    if (this.uniformColorName != null) {
+      text += "uniform vec4 " + this.uniformColorName + ";\n";
+    }
+    if (this.uniformDirectDirectionName != null) {
+      text += "uniform vec3 " + this.uniformDirectDirectionName + ";\n";
+    }
+    if (this.uniformTextureName != null) {
+      text += "uniform sampler2D " + this.uniformTextureName + ";\n";
+    }
+    if (this.uniformShininess != null) {
+      text += "uniform float " + this.uniformShininess + ";\n";
+    }
+    return text;
+  };
 
-    // functions
+  this.buildVarying = function() {
+    var text = "";
+    if (this.varyingColorName != null) {
+      text += "varying vec4 " + this.varyingColorName + ";\n";
+    }
+    if (this.varyingNormalsName != null) {
+      text += "varying vec3 " + this.varyingNormalsName + ";\n";
+    }
+    if (this.varyingUVCoordsName != null) {
+      text += "varying vec2 " + this.varyingUVCoordsName + ";\n";
+    }
+    if (this.varyingLightPosition != null) {
+      text += "varying vec3 v_surfaceToLight;\n";
+    }
+    if (this.uniformShininess != null) {
+      text += "varying vec3 v_surfaceToCamera;\n";
+    }
+    return text;
+  };
 
-    this.buildUniforms = function () {
-        var text = "";
-        if (this.uniformColorName != null) {
-            text += "uniform vec4 " + this.uniformColorName + ";\n";
-        }
-        if (this.uniformDirectDirectionName != null) {
-            text += "uniform vec3 " + this.uniformDirectDirectionName + ";\n";
-        }
-        if (this.uniformTextureName != null) {
-            text += "uniform sampler2D " + this.uniformTextureName + ";\n";
-        }
-        return text;
+  this.buildMain = function() {
+    var text = "";
+    text += "void main(){\n";
+    text += this.buildInnerMain();
+    text += "}\n";
+    return text;
+  };
+
+  this.buildInnerMain = function() {
+    var text = "";
+
+    if (
+      this.uniformColorName == null &&
+      this.varyingUVCoordsName == null &&
+      this.varyingColorName == null
+    ) {
+      text += "gl_FragColor = vec4(1,0,0,1);\n";
     }
 
-    this.buildVarying = function () {
-        var text = "";
-        if (this.varyingColorName != null) {
-            text += "varying vec4 " + this.varyingColorName + ";\n";
-        }
-        if (this.varyingNormalsName != null) {
-            text += "varying vec3 " + this.varyingNormalsName + ";\n";
-        }
-        if (this.varyingUVCoordsName != null) {
-            text += "varying vec2 " + this.varyingUVCoordsName + ";\n";
-        }
-        if (this.varyingLightPosition != null) {
-            text += "varying vec3 v_surfaceToLight;\n";
-        }
-        return text;
+    if (this.uniformColorName != null) {
+      text += "gl_FragColor = " + this.uniformColorName + ";\n";
     }
 
-    this.buildMain = function () {
-        var text = "";
-        text += "void main(){\n";
-        text += this.buildInnerMain();
-        text += "}\n";
-        return text;
+    if (this.varyingColorName != null && this.varyingNormalsName == null) {
+      text += "gl_FragColor = " + this.varyingColorName + ";\n";
     }
 
-    this.buildInnerMain = function () {
-        var text = "";
-
-        if (this.uniformColorName == null &&
-            this.varyingUVCoordsName == null &&
-            this.varyingColorName == null) {
-            text += "gl_FragColor = vec4(1,0,0,1);\n"
-        }
-
-        if (this.uniformColorName != null) {
-            text += "gl_FragColor = " + this.uniformColorName + ";\n";
-        }
-
-        if (this.varyingColorName != null &&
-            this.varyingNormalsName == null) {
-            text += "gl_FragColor = " + this.varyingColorName + ";\n";
-        }
-
-        if (this.varyingNormalsName != null) {
-            text += "vec3 normal = normalize(" + this.varyingNormalsName + ");\n";
-        }
-
-        if (this.varyingNormalsName != null &&
-            this.uniformDirectDirectionName != null) {
-            text += "float lightfactor = clamp(dot(normal,";
-            text += this.uniformDirectDirectionName + "),0.0,1.0);\n";
-        }
-
-        if (this.varyingLightPosition != null) {
-            text += "vec3 surfaceToLight = normalize(v_surfaceToLight);\n";
-            text += "float pointfactor = clamp(dot(normal, surfaceToLight),0.0,1.0);\n";
-        }
-
-        if (this.varyingColorName != null &&
-            this.uniformDirectDirectionName != null &&
-            this.varyingUVCoordsName == null) {
-            text += "gl_FragColor = " + this.varyingColorName + ";\n";
-        }
-        if (this.varyingColorName == null &&
-            this.uniformTextureName != null &&
-            this.varyingUVCoordsName != null) {
-            text += "gl_FragColor = "
-                + "texture2D("
-                + this.uniformTextureName
-                + ","
-                + this.varyingUVCoordsName
-                + ")"
-                + ";\n";
-        }
-
-        if (this.varyingNormalsName != null
-            && this.uniformDirectDirectionName != null
-            && this.varyingLightPosition == null) {
-            text += "gl_FragColor.rgb *= lightfactor;\n";
-        }
-
-        if (this.varyingNormalsName != null
-            && this.uniformDirectDirectionName == null
-            && this.varyingLightPosition != null) {
-            text += "gl_FragColor.rgb *= pointfactor;\n";
-        }
-
-        if (this.varyingNormalsName != null
-            && this.uniformDirectDirectionName != null
-            && this.varyingLightPosition != null) {
-            text += "gl_FragColor.rgb *= min((lightfactor+pointfactor),1.0);\n";
-        }
-
-        return text;
+    if (this.varyingNormalsName != null) {
+      text += "vec3 normal = normalize(" + this.varyingNormalsName + ");\n";
     }
 
-    // constructor  
+    if (
+      this.varyingNormalsName != null &&
+      this.uniformDirectDirectionName != null
+    ) {
+      text += "float lightfactor = clamp(dot(normal,";
+      text += this.uniformDirectDirectionName + "),0.0,1.0);\n";
+    }
 
-    item.getUniforms().forEach(uniform => {
-        if (uniform.getKind() == UniformKind.COLOR) {
-            this.uniformColorName = uniform.getName();
-        }
-        if (uniform.getKind() == UniformKind.DIRECTLIGHT) {
-            this.uniformDirectDirectionName = uniform.getName();
-        }
-        if (uniform.getKind() == UniformKind.TEXTURE) {
-            this.uniformTextureName = uniform.getName();
-        }
-        if (uniform.getKind() == UniformKind.POINTLIGHT) {
-            this.varyingLightPosition = uniform.getName().replace("a_", "v_");
-        }
-    })
+    if (this.varyingLightPosition != null) {
+      text += "vec3 surfaceToLight = normalize(v_surfaceToLight);\n";
+      text +=
+        "float pointfactor = clamp(dot(normal, surfaceToLight),0.0,1.0);\n";
+    }
+    if (this.uniformShininess != null) {
+      text += "vec3 surfaceToCamera = normalize(v_surfaceToCamera);\n";
+      // text += "vec3 sum = normalize(surfaceToLight + surfaceToCamera);\n";
+      // text += "float reflection = 0.0;\n";
+      // text += "if(dot(surfaceToLight,surfaceToCamera)>0.0){\n";
+      // text += "reflection = clamp(dot(normal, sum),0.0,1.0);\n";
+      // text += "}\n";
+      text += "float reflection = 0.0;\n";
+      text += "if(dot(surfaceToLight,normal)>0.0){\n";
+      text +=
+        "vec3 mirror = (dot(surfaceToLight,normal)*2.0)*normal-surfaceToLight;\n";
+      text += "reflection = clamp(dot(mirror,surfaceToCamera),0.0,1.0);\n";
+      text += "reflection = pow(reflection, " + this.uniformShininess + ");\n";
+      text += "}\n";
+    }
 
-    item.getAttributes().forEach(attribute => {
-        if (attribute.getKind() == AttributeKind.COLOR) {
-            this.varyingColorName = attribute.getName().replace("a_", "v_");
-        }
-        if (attribute.getKind() == AttributeKind.NORMALS) {
-            this.varyingNormalsName = attribute.getName().replace("a_", "v_");
-        }
-        if (attribute.getKind() == AttributeKind.UVCOORDS) {
-            this.varyingUVCoordsName = attribute.getName().replace("a_", "v_");
-        }
-    })
+    if (
+      this.varyingColorName != null &&
+      this.uniformDirectDirectionName != null &&
+      this.varyingUVCoordsName == null
+    ) {
+      text += "gl_FragColor = " + this.varyingColorName + ";\n";
+    }
+    if (
+      this.varyingColorName == null &&
+      this.uniformTextureName != null &&
+      this.varyingUVCoordsName != null
+    ) {
+      text +=
+        "gl_FragColor = " +
+        "texture2D(" +
+        this.uniformTextureName +
+        "," +
+        this.varyingUVCoordsName +
+        ")" +
+        ";\n";
+    }
 
-    var shaderCode = "precision mediump float;\n"
-    shaderCode += this.buildUniforms();
-    shaderCode += this.buildVarying();
-    shaderCode += this.buildMain();
-    this.setCode(shaderCode);
-}
-FragmentShaderService.prototype = new FragmentShader;
+    if (
+      this.varyingNormalsName != null &&
+      this.uniformDirectDirectionName != null &&
+      this.varyingLightPosition == null
+    ) {
+      text += "gl_FragColor.rgb *= lightfactor;\n";
+    }
+
+    if (
+      this.varyingNormalsName != null &&
+      this.uniformDirectDirectionName == null &&
+      this.varyingLightPosition != null
+    ) {
+      text += "gl_FragColor.rgb *= pointfactor;\n";
+    }
+
+    if (
+      this.varyingNormalsName != null &&
+      this.uniformDirectDirectionName != null &&
+      this.varyingLightPosition != null
+    ) {
+      text += "gl_FragColor.rgb *= min((lightfactor+pointfactor),1.0);\n";
+    }
+
+    if (this.uniformShininess != null) {
+      text += "gl_FragColor.rgb += reflection;\n";
+      // text += "if(reflection>0.5){\n";
+      // text += "gl_FragColor = vec4(1,0,0,1);\n";
+      // text += "}\n";
+    }
+
+    return text;
+  };
+
+  // constructor
+
+  item.getUniforms().forEach(uniform => {
+    if (uniform.getKind() == UniformKind.COLOR) {
+      this.uniformColorName = uniform.getName();
+    }
+    if (uniform.getKind() == UniformKind.DIRECTLIGHT) {
+      this.uniformDirectDirectionName = uniform.getName();
+    }
+    if (uniform.getKind() == UniformKind.TEXTURE) {
+      this.uniformTextureName = uniform.getName();
+    }
+    if (uniform.getKind() == UniformKind.POINTLIGHT) {
+      this.varyingLightPosition = uniform.getName().replace("a_", "v_");
+    }
+    if (uniform.getKind() == UniformKind.SHININESS) {
+      this.uniformShininess = uniform.getName();
+    }
+  });
+
+  item.getAttributes().forEach(attribute => {
+    if (attribute.getKind() == AttributeKind.COLOR) {
+      this.varyingColorName = attribute.getName().replace("a_", "v_");
+    }
+    if (attribute.getKind() == AttributeKind.NORMALS) {
+      this.varyingNormalsName = attribute.getName().replace("a_", "v_");
+    }
+    if (attribute.getKind() == AttributeKind.UVCOORDS) {
+      this.varyingUVCoordsName = attribute.getName().replace("a_", "v_");
+    }
+  });
+
+  var shaderCode = "precision mediump float;\n";
+  shaderCode += this.buildUniforms();
+  shaderCode += this.buildVarying();
+  shaderCode += this.buildMain();
+  this.setCode(shaderCode);
+};
+FragmentShaderService.prototype = new FragmentShader();

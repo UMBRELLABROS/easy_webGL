@@ -124,6 +124,17 @@ var ItemService = function() {
         light.dynamic.position = lightPosition;
         pointLightUniform.dynamic = light.dynamic;
         this.getUniforms().push(pointLightUniform);
+
+        var shininess = prop.shininess;
+        if (shininess != null) {
+          var shininessUniform = new UniformService();
+          shininessUniform.create(
+            UniformKind.SHININESS,
+            "u_shininess",
+            shininess
+          );
+          this.getUniforms().push(shininessUniform);
+        }
       }
     });
 
@@ -158,6 +169,20 @@ var ItemService = function() {
           );
           this.getUniforms().push(cameraMatrixUniform);
           cameraMatrixUniform.dynamic = camera.dynamic;
+        }
+
+        if (
+          camera.type == CameraKind.LOOKAT ||
+          camera.type == CameraKind.MATRIX
+        ) {
+          var cameraPositionUniform = new UniformService();
+          cameraPositionUniform.create(
+            UniformKind.CAMERAPOSITION,
+            "u_camera_position",
+            camera.position
+          );
+          cameraPositionUniform.dynamic = camera.dynamic;
+          this.getUniforms().push(cameraPositionUniform);
         }
       }
     });
@@ -292,6 +317,10 @@ var ItemService = function() {
       }
 
       if (uniform.getKind() == UniformKind.POINTLIGHT) {
+        uniform.setValue(uniform.dynamic.position);
+      }
+
+      if (uniform.getKind() == UniformKind.CAMERAPOSITION) {
         uniform.setValue(uniform.dynamic.position);
       }
 

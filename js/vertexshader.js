@@ -9,6 +9,8 @@ var VertexShader = function() {
   this.uniformCameraMatrixName = null;
   this.uniformTextureName = null;
   this.uniformLightPosition = null;
+  this.uniformShininess = null;
+  this.uniformCameraPosition = null;
   this.code = "";
 
   // getter, setter
@@ -69,6 +71,9 @@ var VertexShaderService = function(item) {
     if (this.uniformLightPosition != null) {
       text += "uniform vec3 " + this.uniformLightPosition + ";\n";
     }
+    if (this.uniformCameraPosition != null) {
+      text += "uniform vec3 " + this.uniformCameraPosition + ";\n";
+    }
     return text;
   };
 
@@ -94,6 +99,9 @@ var VertexShaderService = function(item) {
     }
     if (this.uniformLightPosition != null) {
       text += "varying vec3 v_surfaceToLight;\n";
+    }
+    if (this.uniformShininess != null) {
+      text += "varying vec3 v_surfaceToCamera;\n";
     }
     return text;
   };
@@ -188,6 +196,12 @@ var VertexShaderService = function(item) {
         this.uniformLightPosition +
         " - surfacePosition;\n";
     }
+    if (this.uniformShininess != null) {
+      text +=
+        "v_surfaceToCamera = " +
+        this.uniformCameraPosition +
+        " - surfacePosition;\n";
+    }
     return text;
   };
 
@@ -226,6 +240,12 @@ var VertexShaderService = function(item) {
     }
     if (uniform.getKind() == UniformKind.POINTLIGHT) {
       this.uniformLightPosition = uniform.getName();
+    }
+    if (uniform.getKind() == UniformKind.SHININESS) {
+      this.uniformShininess = uniform.getName();
+    }
+    if (uniform.getKind() == UniformKind.CAMERAPOSITION) {
+      this.uniformCameraPosition = uniform.getName();
     }
   });
 

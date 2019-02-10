@@ -56,7 +56,9 @@ var UniformKind = Object.freeze({
   LOOKATMATRIX: 5,
   TEXTURE: 6,
   DIRECTLIGHT: 7,
-  POINTLIGHT: 8
+  POINTLIGHT: 8,
+  SHININESS: 9,
+  CAMERAPOSITION: 10
 });
 var LightKind = Object.freeze({
   NONE: 0,
