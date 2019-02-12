@@ -16,6 +16,8 @@ var PropService = function(newProp) {
 
   this.dynamic = new Dynamic();
 
+  this.children = [];
+
   // getter, setter
 
   this.setCoords = function(newCoords) {
@@ -90,6 +92,9 @@ var PropService = function(newProp) {
   }
   if (newProp.hasOwnProperty("shininess")) {
     this.shininess = newProp.shininess;
+  }
+  if (newProp.hasOwnProperty("children")) {
+    this.children = newProp.children;
   }
 };
 PropService.prototype = new Prop();

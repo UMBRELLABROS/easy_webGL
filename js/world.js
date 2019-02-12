@@ -1,50 +1,63 @@
 "use strict";
-var World = function () {
+var World = function() {};
 
+var WorldService = function() {
+  var items = [];
+  this.compareItems = [];
 
-}
+  // getter, setter
+  this.getItems = function() {
+    return items;
+  };
+  this.setItems = function(newItems) {
+    items = newItems;
+  };
 
-var WorldService = function () {
+  this.createItems = function(newScene) {
+    // build items from scene
+    var props = newScene.getProps();
+    var lights = newScene.getLights();
+    var cameras = newScene.getCameras();
 
-    var items = [];
+    props.forEach(prop => {
+      var item = new ItemService();
+      item.create(prop, lights, cameras);
+      var program = this.getProgram(this.getItems(), item);
+      item.createProgram(program);
+      this.getItems().push(item);
+      this.getChildProgram(item.children);
+    });
+  };
 
-    // getter, setter
-    this.getItems = function () { return items; }
-    this.setItems = function (newItems) { items = newItems; }
+  this.getChildProgram = function(children) {
+    children.forEach(child => {
+      var program = this.getProgram(this.getItems(), child);
+      child.createProgram(program);
+      this.getChildProgram(child.children);
+    });
+  };
 
-
-    this.createItems = function (newScene) {
-        // build items from scene        
-        var props = newScene.getProps();
-        var lights = newScene.getLights();
-        var cameras = newScene.getCameras();
-
-        props.forEach(prop => {
-
-            var item = new ItemService();
-            item.create(prop, lights, cameras);
-            var program = this.getProgram(item);
-            item.createProgram(program);
-            this.getItems().push(item);
-
-        });
-
+  this.getProgram = function(items, newItem) {
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].equals(newItem)) {
+        return items[i].getProgram();
+      }
     }
+    return null;
+  };
 
-    this.getProgram = function (newItem) {
-        var items = this.getItems();
-        for (var i = 0; i < items.length; i++) {
-            if (items[i].equals(newItem)) {
-                return items[i].getProgram();
-            }
-        };
-        return null;
-    }
+  this.draw = function() {
+    this.getItems().forEach(item => {
+      var matrix = item.draw(null);
+      this.drawChild(item, matrix);
+    });
+  };
 
-    this.draw = function () {
-        this.getItems().forEach(item => {
-            item.draw();
-        });
-    }
-}
-WorldService.prototype = new World;
+  this.drawChild = function(item, parentMatrix) {
+    item.children.forEach(child => {
+      var matrix = child.draw(parentMatrix);
+      this.drawChild(child, matrix);
+    });
+  };
+};
+WorldService.prototype = new World();

@@ -45,14 +45,14 @@
     <br>
     <br>
     Moon<br>
-    <button onclick="rotateProp1(-0.005,0,0)">Rotate -X</button> 
-    <button onclick="rotateProp1(+0.005,0,0)">Rotate +X</button>
+    <button onclick="rotateProp1(-0.05,0,0)">Rotate -X</button> 
+    <button onclick="rotateProp1(+0.05,0,0)">Rotate +X</button>
     <br>
-    <button onclick="rotateProp1(0,-0.005,0)">Rotate -Y</button> 
-    <button onclick="rotateProp1(0,+0.005,0)">Rotate +Y</button>
+    <button onclick="rotateProp1(0,-0.05,0)">Rotate -Y</button> 
+    <button onclick="rotateProp1(0,+0.05,0)">Rotate +Y</button>
     <br>
-    <button onclick="rotateProp1(0,0,-0.005)">Rotate -Z</button> 
-    <button onclick="rotateProp1(0,0,+0.005)">Rotate +Z</button>
+    <button onclick="rotateProp1(0,0,-0.05)">Rotate -Z</button> 
+    <button onclick="rotateProp1(0,0,+0.05)">Rotate +Z</button>
     <br>
 
     <br>
@@ -99,8 +99,8 @@
 
     var camera1 = new Camera();
     camera1.type = CameraKind.LOOKAT;    
-    camera1.dynamic.position = [-30, 30, -100];
-    camera1.dynamic.lookAt = [-30, 0, -40];
+    camera1.dynamic.position = [-30, 30, -50];
+    camera1.dynamic.lookAt = [30, 0, 40];
 
 
     var ball2 = new PropService({
@@ -115,17 +115,20 @@
       position:[-30, 0,-40],      
       shininess:50
     });
-    var ball9 = new PropService({
-      geometry:sphere,     
-      image : "misc/9ball.jpg",
-      position:[30, 0,40]
-    });
+
     var ball14 = new PropService({
       geometry:sphere,    
       image : "misc/14ball.jpg",
-      position:[30, 0,-40],      
+      position:[30, 0, 0],      
       shininess:6
     });
+    var ball9 = new PropService({
+      geometry:sphere,     
+      image : "misc/9ball.jpg",
+      position: [30, 0,40],
+      children: [ball14]
+    });
+    
          
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
@@ -138,9 +141,8 @@
 
     var propC =[];
     propC.push(ball2);
-    propC.push(ball8);
-    propC.push(ball9);
-    propC.push(ball14);
+    //propC.push(ball8);
+    propC.push(ball9);    
     propC.push(propLight);
 
     var scene = new SceneService(propC, [light1, light2], [camera1]);
@@ -150,11 +152,11 @@
     director.action();
 
     function rotate(valueX,valueY,valueZ){
-        ball8.dynamic.rotate = [valueX,valueY,valueZ];
+        ball14.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function rotateProp1(valueX,valueY,valueZ){
-        ball14.dynamic.rotate = [valueX,valueY,valueZ];
+        ball9.dynamic.rotate = [valueX,valueY,valueZ];
     }
 
     function lightPos(){
@@ -179,7 +181,7 @@
       time += 40;
       setTimeout("rotateCamera()",40);
     }
-      rotateCamera();
+     // rotateCamera();
     
     </script>
 

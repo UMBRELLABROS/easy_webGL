@@ -41,6 +41,7 @@ var ItemService = function() {
   var attributes = [];
   var uniforms = [];
   this.dynamic = new Dynamic();
+  this.children = [];
 
   // getter, setter
   this.setAttributes = function(newAttributes) {
@@ -98,9 +99,11 @@ var ItemService = function() {
     var uvCoords = prop.uvCoords;
     var geometry = prop.geometry;
 
-    this.getVelocity = prop.getVelocity;
-    this.getRotation = prop.getRotation;
-    this.getPosition = prop.getPosition;
+    prop.children.forEach(prop => {
+      var item = new ItemService();
+      item.create(prop, lights, cameras);
+      this.children.push(item);
+    });
 
     lights.forEach(light => {
       if (light.getKind() == LightKind.DIRECT) {
@@ -289,7 +292,8 @@ var ItemService = function() {
     this.setProgram(program);
   };
 
-  this.draw = function() {
+  this.draw = function(parentMatrix) {
+    var objectMatrix = null;
     Gl.useProgram(this.getProgram());
 
     this.getAttributes().forEach(attribute => {
@@ -298,13 +302,16 @@ var ItemService = function() {
 
     this.getUniforms().forEach(uniform => {
       if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
-        var matrix = uniform.dynamic.buildMatrix();
+        objectMatrix = uniform.dynamic.buildMatrix();
+        if (parentMatrix) {
+          objectMatrix = m4.multiply(parentMatrix, objectMatrix);
+        }
 
         // DEBUG
         // var v = testPoint(matrix, 0, 0, 10, 1);
         // var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]
 
-        uniform.setValue(matrix);
+        uniform.setValue(objectMatrix);
       }
 
       if (uniform.getKind() == UniformKind.CAMERAMATRIX) {
@@ -332,6 +339,7 @@ var ItemService = function() {
     } else {
       Gl.drawElement(this.getCountElements());
     }
+    return objectMatrix;
   };
 };
 ItemService.prototype = new Item();
