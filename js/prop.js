@@ -12,7 +12,7 @@ var PropService = function(newProp) {
   var color = null;
   var colorArray = null;
   var position = null;
-  var shininess = null;
+  this.physics = null;
 
   this.dynamic = new Dynamic();
 
@@ -95,6 +95,9 @@ var PropService = function(newProp) {
   }
   if (newProp.hasOwnProperty("children")) {
     this.children = newProp.children;
+  }
+  if (newProp.hasOwnProperty("physics")) {
+    this.physics = newProp.physics;
   }
 };
 PropService.prototype = new Prop();

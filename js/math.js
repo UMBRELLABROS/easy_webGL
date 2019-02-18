@@ -8,6 +8,53 @@ var m4 = {
     return [aspect, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   },
 
+  compareMatrices: function(a, b) {
+    if (a[12] != b[12]) return false;
+    if (a[13] != b[13]) return false;
+    if (a[14] != b[14]) return false;
+
+    if (a[0] != b[0]) return false;
+    if (a[5] != b[5]) return false;
+    if (a[10] != b[10]) return false;
+    return true;
+  },
+
+  transformPoint: function(a, p) {
+    var a00 = a[0 * 4 + 0];
+    var a01 = a[0 * 4 + 1];
+    var a02 = a[0 * 4 + 2];
+    var a10 = a[1 * 4 + 0];
+    var a11 = a[1 * 4 + 1];
+    var a12 = a[1 * 4 + 2];
+    var a20 = a[2 * 4 + 0];
+    var a21 = a[2 * 4 + 1];
+    var a22 = a[2 * 4 + 2];
+    var a30 = a[3 * 4 + 0];
+    var a31 = a[3 * 4 + 1];
+    var a32 = a[3 * 4 + 2];
+    return new Geometry.Vector(
+      a00 * p.x + a10 * p.y + a20 * p.z + a30,
+      a01 * p.x + a11 * p.y + a21 * p.z + a31,
+      a02 * p.x + a12 * p.y + a22 * p.z + a32
+    );
+  },
+  rotatePoint: function(a, p) {
+    var a00 = a[0 * 4 + 0];
+    var a01 = a[0 * 4 + 1];
+    var a02 = a[0 * 4 + 2];
+    var a10 = a[1 * 4 + 0];
+    var a11 = a[1 * 4 + 1];
+    var a12 = a[1 * 4 + 2];
+    var a20 = a[2 * 4 + 0];
+    var a21 = a[2 * 4 + 1];
+    var a22 = a[2 * 4 + 2];
+    return new Geometry.Vector(
+      a00 * p.x + a10 * p.y + a20,
+      a01 * p.x + a11 * p.y + a21,
+      a02 * p.x + a12 * p.y + a22
+    );
+  },
+
   multiply: function(a, b) {
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];

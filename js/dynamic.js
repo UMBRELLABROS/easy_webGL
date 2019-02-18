@@ -7,6 +7,7 @@ var Dynamic = function() {
 
   this.rotate = [0, 0, 0];
   this.velocity = [0, 0, 0];
+  this.acceleration = [0, 0, 0];
 
   this.rotate2 = [0, 0, 0];
 
@@ -15,22 +16,29 @@ var Dynamic = function() {
 };
 
 Dynamic.prototype = {
-  buildMatrix: function() {
+  buildMatrix: function(deltaTime) {
     var matrix = m4.identity();
 
+    var a = this.acceleration;
+
+    var v = this.velocity;
+    v[0] += a[0] * deltaTime;
+    v[1] += a[1] * deltaTime;
+    v[2] += a[2] * deltaTime;
+
     var p = this.position;
+    p[0] += v[0] * deltaTime;
+    p[1] += v[1] * deltaTime;
+    p[2] += v[2] * deltaTime;
     matrix = m4.translate(matrix, p[0], p[1], p[2]);
 
     var r = this.rotate;
-    this.orientation[0] += r[0];
-    this.orientation[1] += r[1];
-    this.orientation[2] += r[2];
+    this.orientation[0] += r[0] * deltaTime;
+    this.orientation[1] += r[1] * deltaTime;
+    this.orientation[2] += r[2] * deltaTime;
     matrix = m4.xRotate(matrix, this.orientation[0]);
     matrix = m4.yRotate(matrix, this.orientation[1]);
     matrix = m4.zRotate(matrix, this.orientation[2]);
-
-    var v = this.velocity;
-    matrix = m4.translate(matrix, v[0], v[1], v[2]);
 
     var r2 = this.rotate2;
     matrix = m4.xRotate(matrix, r2[0]);
@@ -64,24 +72,6 @@ Dynamic.prototype = {
     var xAxis = up.cross(zAxis).unit();
     var yAxis = zAxis.cross(xAxis).unit();
 
-    /*return [
-      xAxis.x,
-      xAxis.y,
-      xAxis.z,
-      0,
-      yAxis.x,
-      yAxis.y,
-      yAxis.z,
-      0,
-      zAxis.x,
-      zAxis.y,
-      zAxis.z,
-      0,
-      position.x,
-      position.y,
-      position.z,
-      1
-    ];*/
     var matrix = [
       xAxis.x,
       yAxis.x,

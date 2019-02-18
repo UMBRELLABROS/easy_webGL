@@ -42,6 +42,8 @@ var ItemService = function() {
   var uniforms = [];
   this.dynamic = new Dynamic();
   this.children = [];
+  this.lastObjectMatrix = m4.identity();
+  this.physics = null;
 
   // getter, setter
   this.setAttributes = function(newAttributes) {
@@ -98,6 +100,9 @@ var ItemService = function() {
     var image = prop.image;
     var uvCoords = prop.uvCoords;
     var geometry = prop.geometry;
+    this.physics = prop.physics;
+    this.polygons;
+    this.sphere;
 
     prop.children.forEach(prop => {
       var item = new ItemService();
@@ -195,6 +200,13 @@ var ItemService = function() {
       normals = geometry.normals;
       uvCoords = geometry.uvCoords;
       indices = geometry.indices;
+      if (this.physics) {
+        if (geometry.sphere) {
+          this.sphere = geometry.sphere;
+        } else {
+          this.polygons = geometry.polygons;
+        }
+      }
     }
 
     if (coords != null) {
@@ -238,8 +250,8 @@ var ItemService = function() {
     if (position != null) {
       var matrixUniform = new UniformService();
       var matrix = m4.identity();
-      matrixUniform.dynamic = prop.dynamic;
-      matrixUniform.dynamic.position = position;
+      this.dynamic = prop.dynamic;
+      this.dynamic.position = position;
       matrixUniform.create(UniformKind.OBJECTMATRIX, "u_object_matrix", matrix);
       this.getUniforms().push(matrixUniform);
     }
@@ -292,7 +304,7 @@ var ItemService = function() {
     this.setProgram(program);
   };
 
-  this.draw = function(parentMatrix) {
+  this.draw = function(deltaTime, parentMatrix) {
     var objectMatrix = null;
     Gl.useProgram(this.getProgram());
 
@@ -302,11 +314,41 @@ var ItemService = function() {
 
     this.getUniforms().forEach(uniform => {
       if (uniform.getKind() == UniformKind.OBJECTMATRIX) {
-        objectMatrix = uniform.dynamic.buildMatrix();
+        objectMatrix = this.dynamic.buildMatrix(deltaTime);
         if (parentMatrix) {
           objectMatrix = m4.multiply(parentMatrix, objectMatrix);
         }
 
+        if (this.physics) {
+          if (!m4.compareMatrices(objectMatrix, this.lastObjectMatrix)) {
+            this.lastObjectMatrix = objectMatrix;
+            // sphere or polygon
+            if (this.polygons) {
+              this.polygons.forEach(polygon => {
+                for (var i = 0; i < polygon.vertices.length; i++) {
+                  polygon.vertices[i].pos = m4.transformPoint(
+                    objectMatrix,
+                    polygon.verticesBase[i].pos
+                  );
+                  polygon.vertices[i].normal = m4.rotatePoint(
+                    objectMatrix,
+                    polygon.verticesBase[i].normal
+                  );
+                }
+                polygon.plane = Geometry.Plane.fromPoints(
+                  polygon.vertices[0].pos,
+                  polygon.vertices[1].pos,
+                  polygon.vertices[2].pos
+                );
+              });
+            } else if (this.sphere) {
+              this.sphere.center = m4.transformPoint(
+                objectMatrix,
+                this.sphere.centerBase
+              );
+            }
+          }
+        }
         // DEBUG
         // var v = testPoint(matrix, 0, 0, 10, 1);
         // var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]

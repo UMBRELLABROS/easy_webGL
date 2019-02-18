@@ -34,14 +34,7 @@
     <div id='canvas_container' ></div>      
 
     Cube<br>
-    <button onclick="rotate(-0.02,0,0)">Rotate -X</button> 
-    <button onclick="rotate(+0.02,0,0)">Rotate +X</button>
-    <br>
-    <button onclick="rotate(0,-0.02,0)">Rotate -Y</button> 
-    <button onclick="rotate(0,+0.02,0)">Rotate +Y</button>
-    <br>
-    <button onclick="rotate(0, 0,-0.02)">Rotate -Z</button> 
-    <button onclick="rotate(0, 0,+0.02)">Rotate +Z</button>
+    <button onclick="acceleration(0,-9.81,0)">Gravity</button>     
     <br>
     <br>
     Moon<br>
@@ -61,11 +54,11 @@
     
     <div class="slidecontainer">
         X position
-       <input type="range" min="-40" max="40" value="0" class="slider" id="lightX" 
+       <input type="range" min="-40" max="40" value="40" class="slider" id="lightX" 
        onchange="lightPos();" oninput="lightPos();"> 
        <br>
        Y position
-       <input type="range" min="-30" max="30" value="10" class="slider" id="lightY" 
+       <input type="range" min="-30" max="30" value="30" class="slider" id="lightY" 
        onchange="lightPos();" oninput="lightPos();"> 
        Z position
        <input type="range" min="-50" max="50" value="0" class="slider" id="lightZ" 
@@ -92,8 +85,9 @@
     
    
     var cube = Geometry.cube({radius:20});
-    var sphere = Geometry.sphere({radius:15,stacks:25,slices:25});
+    var sphere = Geometry.sphere({radius:2,stacks:25,slices:25});
     var sphereLight = Geometry.sphere({radius:0.5});
+    var plane = Geometry.plane({radius:100});
    
     var director = new DirectorController(canvas);
 
@@ -103,30 +97,22 @@
     camera1.dynamic.lookAt = [30, 0, 40];
 
 
-    var ball2 = new PropService({
-      geometry:sphere,      
-      image : "misc/2ball.jpg",
-      position:[-30, 0,40],      
-      shininess:6
-    });
-    var ball8 = new PropService({
-      geometry:sphere,      
-      image : "misc/8ball.jpg",
-      position:[-30, 0,-40],      
-      shininess:50
+    var surface = new PropService({
+      geometry:plane,            
+      color:[0.7,0.7,0.7,1],
+      position:[1, 0, 0], 
+      physics:{movable:false,elastic:0.9}           
     });
 
-    var ball14 = new PropService({
-      geometry:sphere,    
-      image : "misc/14ball.jpg",
-      position:[30, 0, 0],      
-      shininess:6
-    });
+    surface.dynamic.orientation = [0.1,0,0];
+    
     var ball9 = new PropService({
       geometry:sphere,     
       image : "misc/9ball.jpg",
-      position: [30, 0,40],
-      children: [ball14]
+      position: [30, 20,40],   
+      shininess:20,
+      physics:{movable:true,elastic:0.96}
+      
     });
     
          
@@ -140,8 +126,7 @@
     propLight = new PropService({geometry:sphereLight, color : [1,1,1,1], position:light2.position})
 
     var propC =[];
-    propC.push(ball2);
-    //propC.push(ball8);
+    propC.push(surface);    
     propC.push(ball9);    
     propC.push(propLight);
 
@@ -157,6 +142,10 @@
 
     function rotateProp1(valueX,valueY,valueZ){
         ball9.dynamic.rotate = [valueX,valueY,valueZ];
+    }
+
+    function acceleration(valueX,valueY,valueZ){
+      ball9.dynamic.acceleration = [valueX,valueY,valueZ];
     }
 
     function lightPos(){
