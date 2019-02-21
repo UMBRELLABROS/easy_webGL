@@ -7,7 +7,7 @@ var Director = function() {
 };
 
 var DirectorController = function(canvas) {
-  var deltaTime = 50;
+  var deltaTime = 20;
   var startTime;
   var worlds = [];
   this.setWorlds = function(newWorlds) {

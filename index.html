@@ -8,6 +8,7 @@
     <link href="css/style.css" rel="stylesheet">
     <script src="js/gl.js"></script>
     <script src="js/geometry.js"></script>
+    <script src="js/physics.js"></script>
     <script src="js/math.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/attribute.js"></script>
@@ -85,33 +86,32 @@
     
    
     var cube = Geometry.cube({radius:20});
-    var sphere = Geometry.sphere({radius:2,stacks:25,slices:25});
-    var sphereLight = Geometry.sphere({radius:0.5});
-    var plane = Geometry.plane({radius:100});
+    var sphere = Geometry.sphere({radius:0.05,stacks:15,slices:15});
+    var sphereLight = Geometry.sphere({radius:0.05});
+    var plane = Geometry.plane({radius:1});
    
     var director = new DirectorController(canvas);
 
     var camera1 = new Camera();
     camera1.type = CameraKind.LOOKAT;    
-    camera1.dynamic.position = [-30, 30, -50];
-    camera1.dynamic.lookAt = [30, 0, 40];
+    camera1.dynamic.position = [0, 1.5, -1];
+    camera1.dynamic.lookAt = [0, 1, 0];
 
 
     var surface = new PropService({
       geometry:plane,            
-      color:[0.7,0.7,0.7,1],
-      position:[1, 0, 0], 
+      color:[0.0,0.0,0.7,1],
+      position:[0, 1, 0.5], 
       physics:{movable:false,elastic:0.9}           
     });
-
-    surface.dynamic.orientation = [0.1,0,0];
+    surface.dynamic.orientation = [0.01,0,0];
     
     var ball9 = new PropService({
       geometry:sphere,     
       image : "misc/9ball.jpg",
-      position: [30, 20,40],   
+      position: [0, 1.5,0],   
       shininess:20,
-      physics:{movable:true,elastic:0.96}
+      physics:{movable:true,elastic:0.90}
       
     });
     
@@ -122,7 +122,7 @@
     
     var light2 = new LightService();
     light2.setKind(LightKind.POINT);
-    light2.position = [0,0,0];
+    light2.position = [1,1.5,1];
     propLight = new PropService({geometry:sphereLight, color : [1,1,1,1], position:light2.position})
 
     var propC =[];

@@ -52,42 +52,11 @@ var WorldService = function() {
       this.drawChild(item, matrix);
     });
     // physics
-    this.getItems().forEach(item => {
-      if (item.physics && item.physics.movable) {
-        this.getItems().forEach(item2 => {
-          if (item2.physics && item != item2) {
-            if (item.sphere && !item2.sphere) {
-              var polygon = item2.polygons[0];
-
-              var distance =
-                polygon.plane.normal.dot(item.sphere.center) - polygon.plane.c;
-
-              if (distance < item.sphere.radius) {
-                var delta = item.sphere.radius - distance;
-                // turn velovity
-                var vel = new Geometry.Vector(item.dynamic.velocity);
-                // calculate new direction
-                var mult = vel.times(-1).dot(polygon.plane.normal);
-                var newVel = polygon.plane.normal.times(2 * mult).plus(vel);
-                newVel = newVel.times(
-                  item.physics.elastic * item2.physics.elastic
-                );
-                var newDir = newVel.unit();
-                var newPos = newDir.times(delta);
-
-                item.dynamic.velocity = [newVel.x, newVel.y, newVel.z];
-                var pos = item.dynamic.position;
-                item.dynamic.position = [
-                  pos[0] + newPos.x,
-                  pos[1] + newPos.y,
-                  pos[2] + newPos.z
-                ];
-              }
-            }
-          }
-        });
-      }
-    });
+    var physic = new Physics(this.getItems());
+    physic.setMovables();
+    physic.setObstacles();
+    physic.checkCollision();
+    physic = null;
   };
 
   this.drawChild = function(item, parentMatrix) {

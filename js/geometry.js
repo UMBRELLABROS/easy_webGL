@@ -261,6 +261,23 @@ Geometry.Polygon = function(vertices, shared) {
   );
 };
 
+Geometry.Polygon.prototype = {
+  isInside: function(point) {
+    var l = this.vertices.length;
+    for (var i = 0; i < l; i++) {
+      var v1 = this.vertices[i].pos;
+      var v2 = this.vertices[(i + 1) % l].pos;
+      var nl = v2
+        .minus(v1)
+        .cross(this.plane.normal)
+        .unit();
+      var c = nl.dot(v1);
+      if (c - nl.dot(point) < 0) return false;
+    }
+    return true;
+  }
+};
+
 Geometry.Sphere = function(center, radius) {
   this.center = null;
   this.centerBase = center;

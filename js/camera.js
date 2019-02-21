@@ -2,7 +2,7 @@
 var Camera = function() {
   this.kind = CameraKind.MAIN;
   this.fieldOfView = Math.PI / 4;
-  this.near = 10;
+  this.near = 0.1;
   this.far = 400;
   this.aspectRatio = 16 / 9;
   this.movement;
