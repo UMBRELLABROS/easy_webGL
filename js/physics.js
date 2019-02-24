@@ -39,7 +39,6 @@ Physics.prototype = {
         }
       });
     });
-    var t = 4;
   },
   checkCollision: function() {
     this.movables.forEach(movable => {
@@ -53,6 +52,7 @@ Physics.prototype = {
             }
           }
         } else {
+          // polygon
         }
       });
     });
@@ -67,6 +67,9 @@ Physics.prototype = {
     newVel = newVel.times(movable.physics.elastic * movable.physics.elastic);
     var newDir = newVel.unit();
     var newPos = newDir.times(delta);
+    if (newVel.length() < 0.05 && Math.abs(delta) < 0.001) {
+      movable.dynamic.stable = true;
+    }
 
     movable.dynamic.velocity = [newVel.x, newVel.y, newVel.z];
     var pos = movable.dynamic.position;

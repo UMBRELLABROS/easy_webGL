@@ -34,6 +34,8 @@
     
     <div id='canvas_container' ></div>      
 
+    <p id=debug></p>
+
     Cube<br>
     <button onclick="acceleration(0,-9.81,0)">Gravity</button>     
     <br>
@@ -55,7 +57,7 @@
     
     <div class="slidecontainer">
         X position
-       <input type="range" min="-40" max="40" value="40" class="slider" id="lightX" 
+       <input type="range" min="-40" max="40" value="10" class="slider" id="lightX" 
        onchange="lightPos();" oninput="lightPos();"> 
        <br>
        Y position
@@ -89,6 +91,8 @@
     var sphere = Geometry.sphere({radius:0.05,stacks:15,slices:15});
     var sphereLight = Geometry.sphere({radius:0.05});
     var plane = Geometry.plane({radius:1});
+    var plane2 = Geometry.plane({radius:0.2});
+    var plane3 = Geometry.plane({radius:0.2});
    
     var director = new DirectorController(canvas);
 
@@ -104,12 +108,28 @@
       position:[0, 1, 0.5], 
       physics:{movable:false,elastic:0.9}           
     });
-    surface.dynamic.orientation = [0.01,0,0];
+    surface.dynamic.orientation = [0.0,0,0];
+
+    var surface2 = new PropService({
+      geometry:plane2,            
+      color:[0.9,0.0,0.0,1],
+      position:[-.6, 1.4, 0.0], 
+      physics:{movable:false,elastic:0.9}           
+    });
+    surface2.dynamic.orientation = [0.0,0,0.4];
+
+    var surface3 = new PropService({
+      geometry:plane3,            
+      color:[0.9,0.9,0.0,1],
+      position:[.6, 1.2, 0.0], 
+      physics:{movable:false,elastic:0.9}           
+    });
+    surface3.dynamic.orientation = [0.0,0,-0.4];
     
     var ball9 = new PropService({
       geometry:sphere,     
       image : "misc/9ball.jpg",
-      position: [0, 1.5,0],   
+      position: [-.6, 1.8,0],   
       shininess:20,
       physics:{movable:true,elastic:0.90}
       
@@ -127,6 +147,8 @@
 
     var propC =[];
     propC.push(surface);    
+    propC.push(surface2); 
+    propC.push(surface3); 
     propC.push(ball9);    
     propC.push(propLight);
 

@@ -22,9 +22,17 @@ Dynamic.prototype = {
     var a = this.acceleration;
 
     var v = this.velocity;
-    v[0] += a[0] * deltaTime;
-    v[1] += a[1] * deltaTime;
-    v[2] += a[2] * deltaTime;
+    if (this.stable && new Geometry.Vector(v).length() < 0.05) {
+      v[0] = 0;
+      v[1] = 0;
+      v[2] = 0;
+    } else {
+      this.stable = false;
+      v[0] += a[0] * deltaTime;
+      v[1] += a[1] * deltaTime;
+      v[2] += a[2] * deltaTime;
+    }
+    this.velocity = v;
 
     var p = this.position;
     p[0] += v[0] * deltaTime;

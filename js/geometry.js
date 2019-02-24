@@ -275,6 +275,23 @@ Geometry.Polygon.prototype = {
       if (c - nl.dot(point) < 0) return false;
     }
     return true;
+  },
+  transformPoints: function(objectMatrix) {
+    for (var i = 0; i < this.vertices.length; i++) {
+      this.vertices[i].pos = m4.transformPoint(
+        objectMatrix,
+        this.verticesBase[i].pos
+      );
+      this.vertices[i].normal = m4.rotatePoint(
+        objectMatrix,
+        this.verticesBase[i].normal
+      );
+    }
+    this.plane = Geometry.Plane.fromPoints(
+      this.vertices[0].pos,
+      this.vertices[1].pos,
+      this.vertices[2].pos
+    );
   }
 };
 

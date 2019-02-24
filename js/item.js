@@ -325,21 +325,7 @@ var ItemService = function() {
             // sphere or polygon
             if (this.polygons) {
               this.polygons.forEach(polygon => {
-                for (var i = 0; i < polygon.vertices.length; i++) {
-                  polygon.vertices[i].pos = m4.transformPoint(
-                    objectMatrix,
-                    polygon.verticesBase[i].pos
-                  );
-                  polygon.vertices[i].normal = m4.rotatePoint(
-                    objectMatrix,
-                    polygon.verticesBase[i].normal
-                  );
-                }
-                polygon.plane = Geometry.Plane.fromPoints(
-                  polygon.vertices[0].pos,
-                  polygon.vertices[1].pos,
-                  polygon.vertices[2].pos
-                );
+                polygon.transformPoints(objectMatrix);
               });
             } else if (this.sphere) {
               this.sphere.center = m4.transformPoint(
