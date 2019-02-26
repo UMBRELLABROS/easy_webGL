@@ -202,9 +202,12 @@ var ItemService = function() {
       indices = geometry.indices;
       if (this.physics) {
         if (geometry.sphere) {
-          this.sphere = geometry.sphere;
+          this.sphere = geometry.sphere.clone();
         } else {
-          this.polygons = geometry.polygons;
+          this.polygons = [];
+          geometry.polygons.forEach(polygon => {
+            this.polygons.push(polygon.clone());
+          });
         }
       }
     }

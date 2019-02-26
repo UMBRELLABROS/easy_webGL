@@ -236,6 +236,14 @@ Geometry.Vertex = function(pos, normal, uv) {
   this.normal = new Geometry.Vector(normal);
   this.uv = new Geometry.UV(uv);
 };
+Geometry.Vertex.prototype = {
+  clone: function() {
+    var pos = new Geometry.Vector(this.pos);
+    var normal = new Geometry.Vector(this.normal);
+    var uv = new Geometry.UV(this.uv);
+    return new Geometry.Vertex(pos, normal, uv);
+  }
+};
 
 Geometry.Plane = function(normal, c) {
   this.normal = normal;
@@ -262,6 +270,13 @@ Geometry.Polygon = function(vertices, shared) {
 };
 
 Geometry.Polygon.prototype = {
+  clone: function() {
+    var vertices = [];
+    this.vertices.forEach(vertex => {
+      vertices.push(vertex.clone());
+    });
+    return new Geometry.Polygon(vertices, this.shared);
+  },
   isInside: function(point) {
     var l = this.vertices.length;
     for (var i = 0; i < l; i++) {
@@ -296,7 +311,12 @@ Geometry.Polygon.prototype = {
 };
 
 Geometry.Sphere = function(center, radius) {
-  this.center = null;
+  this.center = center;
   this.centerBase = center;
   this.radius = radius;
+};
+Geometry.Sphere.prototype = {
+  clone: function() {
+    return new Geometry.Sphere(this.center, this.radius);
+  }
 };
