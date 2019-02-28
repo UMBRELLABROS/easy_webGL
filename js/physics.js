@@ -34,6 +34,19 @@ Physics.prototype = {
               if (polygon.plane.normal.dot(movableDirection) < 0) {
                 movable.polygonObstacles.push(polygon);
               }
+              if (
+                polygon.plane.normal.dot(new Geometry.Vector(0, 1, 0)) < 0.99999
+              ) {
+                var distance =
+                  polygon.plane.normal.dot(movable.sphere.center) -
+                  polygon.plane.c;
+                if (Math.abs(distance - movable.sphere.radius) < 0.001) {
+                  // ziemlich dicht
+                  var t = 0;
+                }
+              }
+              // prüfen ob fläche schräg ist und abstand <0.01
+              // hinzufügen zu tiltedPolygon
             });
           }
         }
