@@ -338,6 +338,7 @@ var ItemService = function() {
             }
           }
         }
+
         // DEBUG
         // var v = testPoint(matrix, 0, 0, 10, 1);
         // var v1 = [v[0] / v[3], v[1] / v[3], v[2] / v[3]]

@@ -22,6 +22,8 @@ Physics.prototype = {
   },
   setObstacles: function() {
     this.movables.forEach(movable => {
+      $("debug").innerHTML = movable.dynamic.grounded ? "grounded" : "free";
+      //movable.dynamic.grounded = false;
       var movableDirection = new Geometry.Vector(movable.dynamic.velocity);
       this.items.forEach(obstacle => {
         if (movable != obstacle) {
@@ -34,19 +36,6 @@ Physics.prototype = {
               if (polygon.plane.normal.dot(movableDirection) < 0) {
                 movable.polygonObstacles.push(polygon);
               }
-              if (
-                polygon.plane.normal.dot(new Geometry.Vector(0, 1, 0)) < 0.99999
-              ) {
-                var distance =
-                  polygon.plane.normal.dot(movable.sphere.center) -
-                  polygon.plane.c;
-                if (Math.abs(distance - movable.sphere.radius) < 0.001) {
-                  // ziemlich dicht
-                  var t = 0;
-                }
-              }
-              // prüfen ob fläche schräg ist und abstand <0.01
-              // hinzufügen zu tiltedPolygon
             });
           }
         }
@@ -57,9 +46,20 @@ Physics.prototype = {
     this.movables.forEach(movable => {
       movable.polygonObstacles.forEach(polygon => {
         if (movable.sphere) {
-          var distance =
-            polygon.plane.normal.dot(movable.sphere.center) - polygon.plane.c;
-          if (distance < movable.sphere.radius) {
+          var distanceBefore =
+            polygon.plane.normal.dot(
+              new Geometry.Vector(movable.dynamic.lastPosition)
+            ) -
+            polygon.plane.c -
+            movable.sphere.radius;
+          var distanceAfter =
+            polygon.plane.normal.dot(
+              new Geometry.Vector(movable.dynamic.position)
+            ) -
+            polygon.plane.c -
+            movable.sphere.radius;
+          if (distanceBefore * distanceAfter < 0) {
+            var distance = Math.abs(distanceAfter);
             if (polygon.isInside(movable.sphere.center)) {
               this.calcNewDirectionWithPolygon(movable, polygon, distance);
             }
@@ -71,7 +71,6 @@ Physics.prototype = {
     });
   },
   calcNewDirectionWithPolygon: function(movable, polygon, distance) {
-    var delta = movable.sphere.radius - distance;
     // turn velovity
     var vel = new Geometry.Vector(movable.dynamic.velocity);
     // calculate new direction / vel
@@ -79,9 +78,9 @@ Physics.prototype = {
     var newVel = polygon.plane.normal.times(2 * mult).plus(vel);
     newVel = newVel.times(movable.physics.elastic * movable.physics.elastic);
     var newDir = newVel.unit();
-    var newPos = newDir.times(delta);
-    if (newVel.length() < 0.05 && Math.abs(delta) < 0.001) {
-      movable.dynamic.stable = true;
+    var newPos = newDir.times(2 * distance);
+    if (newVel.length() < 0.1 && Math.abs(distance) < 0.001) {
+      movable.dynamic.status = DynamicKind.STABLE;
     }
 
     movable.dynamic.velocity = [newVel.x, newVel.y, newVel.z];

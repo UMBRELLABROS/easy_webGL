@@ -65,6 +65,11 @@ var LightKind = Object.freeze({
   DIRECT: 1,
   POINT: 2
 });
+var DynamicKind = Object.freeze({
+  STABLE: 0,
+  GROUNDED: 1,
+  FREE: 2
+});
 var CameraKind = Object.freeze({
   NONE: 0,
   MAIN: 1,

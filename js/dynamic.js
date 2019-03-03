@@ -2,13 +2,18 @@
 var Dynamic = function() {
   this.active = false;
 
+  this.status = DynamicKind.FREE;
+
   this.position = [0, 0, 0];
+  this.lastPosition = [0, 0, 0];
   this.orientation = [0, 0, 0];
 
   this.rotate = [0, 0, 0];
-  this.velocity = [0, 0, 0];
-  this.acceleration = [0, 0, 0];
 
+  this.acceleration = [0, 0, 0];
+  this.accelerationGrounded = [0, 0, 0];
+
+  this.velocity = [0, 0, 0];
   this.rotate2 = [0, 0, 0];
 
   this.up = [0, 1, 0];
@@ -19,22 +24,26 @@ Dynamic.prototype = {
   buildMatrix: function(deltaTime) {
     var matrix = m4.identity();
 
-    var a = this.acceleration;
+    var a =
+      this.status == DynamicKind.GROUNDED
+        ? this.accelerationGrounded
+        : this.acceleration;
 
     var v = this.velocity;
-    if (this.stable && new Geometry.Vector(v).length() < 0.05) {
+    if (this.status == DynamicKind.STABLE) {
       v[0] = 0;
       v[1] = 0;
       v[2] = 0;
     } else {
-      this.stable = false;
       v[0] += a[0] * deltaTime;
       v[1] += a[1] * deltaTime;
       v[2] += a[2] * deltaTime;
     }
-    this.velocity = v;
 
     var p = this.position;
+    this.lastPosition[0] = p[0];
+    this.lastPosition[1] = p[1];
+    this.lastPosition[2] = p[2];
     p[0] += v[0] * deltaTime;
     p[1] += v[1] * deltaTime;
     p[2] += v[2] * deltaTime;
