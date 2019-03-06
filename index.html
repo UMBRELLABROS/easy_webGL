@@ -108,7 +108,7 @@
       position:[0, 1, 0.5], 
       physics:{movable:false,elastic:0.9}           
     });
-    surface.dynamic.orientation = [0.0004,0,0];
+    surface.dynamic.orientation = [0.004,0,0];
 
     var surface2 = new PropService({
       geometry:plane2,            
@@ -125,6 +125,14 @@
       physics:{movable:false,elastic:0.9}           
     });
     surface3.dynamic.orientation = [0.0,0,-0.4];
+
+    var surface4 = new PropService({
+      geometry:plane2,            
+      color:[0.9,0.9,0.9,1],
+      position:[-.2, 1.2, 0.0], 
+      physics:{movable:false,elastic:0.9}           
+    });
+    surface4.dynamic.orientation = [0.0,-0.5,1.3];
     
     var ball9 = new PropService({
       geometry:sphere,     
@@ -149,6 +157,7 @@
     propC.push(surface);    
     propC.push(surface2); 
     propC.push(surface3); 
+    propC.push(surface4); 
     propC.push(ball9);    
     propC.push(propLight);
 
