@@ -228,6 +228,10 @@ Geometry.Vector.prototype = {
       this.z * a.x - this.x * a.z,
       this.x * a.y - this.y * a.x
     );
+  },
+
+  toArray: function() {
+    return [this.x, this.y, this.z];
   }
 };
 

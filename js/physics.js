@@ -33,7 +33,7 @@ Physics.prototype = {
             // nur polygone hinzufügen
             obstacle.polygons.forEach(polygon => {
               if (polygon.plane.normal.dot(movableDirection) < 0) {
-                polygon.elastic = obstacle.physics.elastic;
+                polygon.rigidity = obstacle.physics.rigidity;
                 movable.polygonObstacles.push(polygon);
               }
             });
@@ -103,7 +103,7 @@ Physics.prototype = {
       pos[1] + newPos.y,
       pos[2] + newPos.z
     ];
-    newVel = newVel.times(movable.physics.elastic * polygon.elastic);
+    newVel = newVel.times(movable.physics.rigidity * polygon.rigidity);
     movable.dynamic.velocity = [newVel.x, newVel.y, newVel.z];
 
     if (newVel.length() < 0.2 && Math.abs(distance) < 0.001) {
@@ -120,41 +120,27 @@ Physics.prototype = {
       .times(0.5)
       .dot(planeN);
 
-    // falls obstacle auch movable
-
-    // v1' =  2*(m1v1+m2v2)/(m1+m2)-v1
-    // v2' =  2*(m1v1+m2v2)/(m1+m2)-v2
-    var m1 = movable.physics.weight;
-    var m2 = obstacle.physics.weight;
     var v1 = new Geometry.Vector(movable.dynamic.velocity);
     var v2 = new Geometry.Vector(obstacle.dynamic.velocity);
     var vel1 = this.splitVelocity(v1, planeN);
     var vel2 = this.splitVelocity(v2, planeN);
-    var newVel = this.getNewVelocity(
-      vel1.n,
-      vel1.t,
-      vel2.n,
-      vel2.t,
-      m1,
-      m2,
-      movable.physics.elastic,
-      obstacle.physics.elastic
-    );
+    var mass1 = this.createMass(movable, vel1);
+    var mass2 = this.createMass(obstacle, vel2);
+    var newVel = this.calcElasticCollision(mass1, mass2);
 
-    var a0 = v1.times((2 * m1) / (m1 + m2));
-    var a1 = v2.times((2 * m2) / (m1 + m2));
-    var v1s = a0.plus(a1).minus(v1);
-    var v2s = a0.plus(a1).minus(v2);
-
-    //  Plane wird benötigt für die neue Position
+    // Plane wird benötigt für die neue Position
     // Beide Kugeln werden geändert
+    movable.dynamic.velocity = newVel.v1.toArray();
+    obstacle.dynamic.velocity = newVel.v2.toArray();
+    if (
+      obstacle.dynamic.status == DynamicKind.STABLE &&
+      newVel.v2.length() > 0.0
+    ) {
+      obstacle.dynamic.status = DynamicKind.FREE;
+    }
 
-    var vel = new Geometry.Vector(movable.dynamic.velocity);
-    var mult = vel.times(-1).dot(planeN);
-    var newVel = planeN.times(2 * mult).plus(vel);
     var newPos = planeN.times(2 * distance);
-    newVel = newVel.times(movable.physics.elastic * obstacle.physics.elastic);
-    movable.dynamic.velocity = [newVel.x, newVel.y, newVel.z];
+
     var pos = movable.dynamic.position;
     movable.dynamic.position = [
       pos[0] + newPos.x,
@@ -164,17 +150,33 @@ Physics.prototype = {
   },
   splitVelocity: function(velocity, normal) {
     // split to normal and tangential
-    velNorm = normal.times(velocity.dot(normal));
-    velTan = velocity.minus(velNorm);
+    var velNorm = normal.times(velocity.dot(normal));
+    var velTan = velocity.minus(velNorm);
     return { n: velNorm, t: velTan };
   },
-  getNewVelocity: function(v1, vt1, v2, vt2, m1, m2, red1, red2) {
-    var a0 = v1.times((2 * m1) / (m1 + m2));
-    var a1 = v2.times((2 * m2) / (m1 + m2));
-    var v1s = a0.plus(a1).minus(v1);
-    var v2s = a0.plus(a1).minus(v2);
-    var newV1 = v1s.plus(vt1).times(red1 * red2);
-    var newV2 = v2s.plus(vt2).times(red1 * red2);
-    return { v1s: newV1, v2s: newV2 };
+  createMass: function(movable, velocity) {
+    return {
+      m: movable.physics.weight,
+      velN: velocity.n,
+      velT: velocity.t,
+      rigidity: movable.physics.rigidity,
+      movable: movable.physics.movable
+    };
+  },
+  calcElasticCollision: function(mass1, mass2) {
+    // mass can be movable = false
+    if (mass2.movable) {
+      var a0 = mass1.velN.times((2 * mass1.m) / (mass1.m + mass2.m));
+      var a1 = mass2.velN.times((2 * mass2.m) / (mass1.m + mass2.m));
+      var v1s = a0.plus(a1).minus(mass1.velN);
+      var v2s = a0.plus(a1).minus(mass2.velN);
+      var newV1 = v1s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
+      var newV2 = v2s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
+    } else {
+      var v1s = mass1.velN.times(-1);
+      var newV1 = v1s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
+      var newV2 = new Geometry.Vector(0, 0, 0);
+    }
+    return { v1: newV1, v2: newV2 };
   }
 };
