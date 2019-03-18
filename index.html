@@ -68,6 +68,11 @@
        onchange="lightPos();" oninput="lightPos();">      
     </div>
     
+    <div style="position: absolute;right: 10px; top:10px; width:400px;background: #ccc;">
+    <ul id="debuglist">
+
+    </ul>
+    </div>
           
   </body>
 
@@ -139,7 +144,7 @@
       image : "misc/9ball.jpg",
       position: [-.6, 1.8,0],   
       shininess:20,
-      physics:{movable:true,rigidity:0.90,weight:0.2}
+      physics:{movable:true,rigidity:0.90,weight:0.2, id:1}
       
     });
     var ball9a = new PropService({
@@ -147,7 +152,7 @@
       image : "misc/9ball.jpg",
       position: [-.4, 1.6,0.2],   
       shininess:20,
-      physics:{movable:true,rigidity:0.90,weight:0.2}
+      physics:{movable:true,rigidity:0.90,weight:0.2, id:2}
       
     });
     var ball9b = new PropService({
@@ -155,7 +160,7 @@
       image : "misc/9ball.jpg",
       position: [-.0, 1.05,-0.0],   
       shininess:20,
-      physics:{movable:true,rigidity:0.90, weight:0.2}
+      physics:{movable:true,rigidity:0.90, weight:0.2, id:3}
       
     });
     
@@ -175,7 +180,7 @@
     propC.push(surface3); 
     propC.push(surface4); 
     propC.push(ball9);    
-    propC.push(ball9a);   
+    //propC.push(ball9a);   
     propC.push(ball9b);   
     propC.push(propLight);
 

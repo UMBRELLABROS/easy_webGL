@@ -249,9 +249,28 @@ Geometry.Vertex.prototype = {
   }
 };
 
+Geometry.Line = function(a, dir) {
+  this.a = a;
+  this.dir = dir;
+};
+Geometry.Line.fromPoints = function(a, b) {
+  this.a = a;
+  this.dir = b.minus(a);
+};
+
 Geometry.Plane = function(normal, c) {
   this.normal = normal;
   this.c = c;
+};
+Geometry.Plane.prototype = {
+  intersectLine: function(line) {
+    var t0 = this.c - line.a.dot(this.normal);
+    t0 /= this.normal.dot(line.dir);
+    return line.a.plus(line.dir.times(t0));
+  },
+  mirrorPoint: function(p, distance) {
+    return p.plus(this.normal.times(-2 * distance));
+  }
 };
 
 Geometry.Plane.fromPoints = function(a, b, c) {
@@ -281,7 +300,7 @@ Geometry.Polygon.prototype = {
     });
     return new Geometry.Polygon(vertices, this.shared);
   },
-  isInside: function(point) {
+  surrounds: function(point) {
     var l = this.vertices.length;
     for (var i = 0; i < l; i++) {
       var v1 = this.vertices[i].pos;

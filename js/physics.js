@@ -1,4 +1,7 @@
 "use strict;";
+
+var startDebug = false;
+
 var Physics = function(items) {
   this.items = [];
   this.movables = [];
@@ -14,144 +17,221 @@ Physics.prototype = {
   setMovables: function() {
     this.items.forEach(element => {
       if (element.physics.movable) {
-        element.polygonObstacles = [];
-        element.sphereObstacles = [];
-        this.movables.push(element);
+        if (element.dynamic.status == DynamicKind.FREE) {
+          this.movables.push(element);
+        }
       }
     });
   },
   setObstacles: function() {
     this.movables.forEach(movable => {
-      //movable.dynamic.grounded = false;
-      var movableDirection = new Geometry.Vector(movable.dynamic.velocity);
-      this.items.forEach(obstacle => {
-        if (movable != obstacle) {
-          if (obstacle.sphere) {
-            movable.sphereObstacles.push(obstacle);
-          } else {
-            // prüfen, ob die Richtung stimmt
-            // nur polygone hinzufügen
-            obstacle.polygons.forEach(polygon => {
-              if (polygon.plane.normal.dot(movableDirection) < 0) {
-                polygon.rigidity = obstacle.physics.rigidity;
-                movable.polygonObstacles.push(polygon);
-              }
-            });
-          }
+      this.setMovableObstacles(movable);
+    });
+  },
+  setMovableObstacles: function(movable) {
+    movable.polygonObstacles = [];
+    movable.sphereObstacles = [];
+    var movableDirection = new Geometry.Vector(movable.dynamic.velocity);
+    this.items.forEach(obstacle => {
+      if (movable != obstacle) {
+        if (obstacle.sphere) {
+          movable.sphereObstacles.push(obstacle);
+        } else {
+          // check direction
+          // add only polygons
+          obstacle.polygons.forEach(polygon => {
+            if (polygon.plane.normal.dot(movableDirection) < 0) {
+              polygon.rigidity = obstacle.physics.rigidity;
+              movable.polygonObstacles.push(polygon);
+            }
+          });
         }
-      });
+      }
     });
   },
   checkCollision: function() {
     this.movables.forEach(movable => {
-      movable.polygonObstacles.forEach(polygon => {
-        if (movable.sphere) {
-          var distanceBefore =
-            polygon.plane.normal.dot(
-              new Geometry.Vector(movable.dynamic.lastPosition)
-            ) -
-            polygon.plane.c -
-            movable.sphere.radius;
+      if (movable.dynamic.status == DynamicKind.FREE) {
+        this.checkSingleCollision(movable);
+      }
+    });
+  },
+  checkSingleCollision: function(movable) {
+    movable.polygonObstacles.forEach(polygon => {
+      if (movable.sphere) {
+        var distanceBefore =
+          polygon.plane.normal.dot(
+            new Geometry.Vector(movable.dynamic.lastPosition)
+          ) -
+          polygon.plane.c -
+          movable.sphere.radius;
+        if (distanceBefore > 0) {
           var distanceAfter =
             polygon.plane.normal.dot(
               new Geometry.Vector(movable.dynamic.position)
             ) -
             polygon.plane.c -
             movable.sphere.radius;
-          if (distanceBefore * distanceAfter <= 0) {
-            var distance = Math.abs(distanceAfter);
-            if (polygon.isInside(movable.sphere.center)) {
-              this.calcNewDirectionWithPolygon(movable, polygon, distance);
+
+          if (distanceAfter <= 0) {
+            if (polygon.surrounds(movable.sphere.center)) {
+              this.calcNewDirectionWithPolygon(movable, polygon, distanceAfter);
+              this.setMovableObstacles(movable);
+              this.checkSingleCollision(movable);
             }
           }
-        } else {
-          // polygon
         }
-      });
-      movable.sphereObstacles.forEach(obstacle => {
-        if (movable.sphere) {
-          var sphere = obstacle.sphere;
-          var distanceBefore =
-            sphere.center
-              .minus(new Geometry.Vector(movable.dynamic.lastPosition))
-              .length() -
-            2 * movable.sphere.radius;
-          var distanceAfter =
-            sphere.center
-              .minus(new Geometry.Vector(movable.dynamic.position))
-              .length() -
-            2 * movable.sphere.radius;
-          if (distanceBefore * distanceAfter <= 0) {
-            var distance = Math.abs(distanceAfter);
-            this.calcNewDirectionWithSphere(movable, obstacle, distance);
+      } else {
+        // polygon
+      }
+    });
+    movable.sphereObstacles.forEach(obstacle => {
+      if (movable == obstacle) return;
+      if (movable.sphere) {
+        var sphere = obstacle.sphere;
+
+        var distanceAfter =
+          sphere.center
+            .minus(new Geometry.Vector(movable.dynamic.position))
+            .length() -
+          (movable.sphere.radius + obstacle.sphere.radius);
+
+        if (distanceAfter <= 0) {
+          this.calcNewDirectionWithSphere(movable, obstacle, distanceAfter);
+
+          // DEBUG
+          if (movable.physics.id == 3) {
+            startDebug = true;
+            var list = $("debuglist");
+            var elem = dcE("li");
+            elem.innerHTML = "Depth Check";
+            //list.appendChild(elem);
           }
-        } else {
-          // polygon
+          this.setMovableObstacles(movable);
+          this.checkSingleCollision(movable);
         }
-      });
+      } else {
+        // polygon
+      }
     });
   },
   calcNewDirectionWithPolygon: function(movable, polygon, distance) {
+    if (movable.physics.id == 3) {
+      var test = 9;
+    }
+
+    // shift plane by radius
+    var plane = new Geometry.Plane(
+      polygon.plane.normal,
+      polygon.plane.c + movable.sphere.radius
+    );
+    // velocity
     var vel = new Geometry.Vector(movable.dynamic.velocity);
-    var mult = vel.times(-1).dot(polygon.plane.normal);
-    var newVel = polygon.plane.normal.times(2 * mult).plus(vel);
-    var newPos = polygon.plane.normal.times(2 * distance);
-
-    var pos = movable.dynamic.position;
-    movable.dynamic.position = [
-      pos[0] + newPos.x,
-      pos[1] + newPos.y,
-      pos[2] + newPos.z
-    ];
+    var velDistance = vel.dot(plane.normal);
+    var newVel = plane.mirrorPoint(vel, velDistance);
     newVel = newVel.times(movable.physics.rigidity * polygon.rigidity);
-    movable.dynamic.velocity = [newVel.x, newVel.y, newVel.z];
+    movable.dynamic.velocity = newVel.toArray();
 
-    if (newVel.length() < 0.2 && Math.abs(distance) < 0.001) {
+    // position
+    var pos = new Geometry.Vector(movable.dynamic.position);
+    var newPos = plane.mirrorPoint(pos, distance);
+
+    // intersection
+    var lastPos = new Geometry.Vector(movable.dynamic.lastPosition);
+    var line = new Geometry.Line.fromPoints(lastPos, pos);
+    var intersec = plane.intersectLine(line);
+
+    // shorten newPos
+    var newLine = new Geometry.Line.fromPoints(intersec, newPos);
+    newPos = newLine.a.plus(
+      newLine.dir.times(movable.physics.rigidity * polygon.rigidity)
+    );
+    movable.dynamic.position = newPos.toArray();
+
+    // reset last position
+    dist = Math.abs(distance);
+    var newLastPosition = newLine.a.plus(
+      newLine.dir.times(newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001))
+    );
+    movable.dynamic.lastPosition = newLastPosition.toArray();
+
+    if (newVel.length() < 0.2 && dist < 0.001) {
       movable.dynamic.status = DynamicKind.STABLE;
     }
   },
   calcNewDirectionWithSphere: function(movable, obstacle, distance) {
+    if (movable.physics.id == 3) {
+      var test = 9;
+    }
+
     var sphere = obstacle.sphere;
     var s1P = new Geometry.Vector(movable.dynamic.position);
     var s2P = sphere.center;
-    var planeN = s1P.minus(s2P).unit();
-    var planeC = s1P
-      .plus(s2P)
-      .times(0.5)
-      .dot(planeN);
+
+    // plane
+    var normal = s1P.minus(s2P).unit();
+    var centerPoint = s2P.plus(
+      normal.times(sphere.radius + movable.sphere.radius)
+    );
+    var plane = new Geometry.Plane(normal, centerPoint.dot(normal));
 
     var v1 = new Geometry.Vector(movable.dynamic.velocity);
     var v2 = new Geometry.Vector(obstacle.dynamic.velocity);
-    var vel1 = this.splitVelocity(v1, planeN);
-    var vel2 = this.splitVelocity(v2, planeN);
+    var vel1 = this.splitVelocity(v1, plane.normal);
+    var vel2 = this.splitVelocity(v2, plane.normal);
     var mass1 = this.createMass(movable, vel1);
     var mass2 = this.createMass(obstacle, vel2);
-    var newVel = this.calcElasticCollision(mass1, mass2);
+    var newVels = this.calcElasticCollision(mass1, mass2);
+
+    var dist1 =
+      plane.normal.dot(new Geometry.Vector(movable.dynamic.position)) - plane.c;
+    var dist2 =
+      plane.normal.dot(new Geometry.Vector(movable.dynamic.lastPosition)) -
+      plane.c;
 
     // Plane wird benötigt für die neue Position
     // Beide Kugeln werden geändert
-    movable.dynamic.velocity = newVel.v1.toArray();
-    obstacle.dynamic.velocity = newVel.v2.toArray();
-    if (
-      obstacle.dynamic.status == DynamicKind.STABLE &&
-      newVel.v2.length() > 0.0
-    ) {
-      obstacle.dynamic.status = DynamicKind.FREE;
+    movable.dynamic.velocity = newVels.v1.toArray();
+    if (obstacle.physics.movable) {
+      obstacle.dynamic.velocity = newVels.v2.toArray();
+      if (obstacle.dynamic.status == DynamicKind.STABLE) {
+        obstacle.dynamic.status = DynamicKind.FREE;
+      }
     }
 
-    var newPos = planeN.times(2 * distance);
+    // position
+    var pos = new Geometry.Vector(movable.dynamic.position);
+    var newPos = plane.mirrorPoint(pos, distance);
 
-    var pos = movable.dynamic.position;
-    movable.dynamic.position = [
-      pos[0] + newPos.x,
-      pos[1] + newPos.y,
-      pos[2] + newPos.z
-    ];
+    // intersection
+    var lastPos = new Geometry.Vector(movable.dynamic.lastPosition);
+    var line = new Geometry.Line.fromPoints(lastPos, pos);
+    var intersec = plane.intersectLine(line);
+
+    // shorten newPos
+    var newLine = new Geometry.Line.fromPoints(intersec, newPos);
+    newPos = newLine.a.plus(
+      newLine.dir.times(movable.physics.rigidity * obstacle.physics.rigidity)
+    );
+    movable.dynamic.position = newPos.toArray();
+
+    // reset last position
+    var dist = Math.abs(distance);
+    var newLastPosition = newLine.a.plus(
+      newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001)
+    );
+    movable.dynamic.lastPosition = newLastPosition.toArray();
+
+    if (newVels.v1.length() < 0.2 && dist < 0.001) {
+      movable.dynamic.status = DynamicKind.STABLE;
+    }
   },
   splitVelocity: function(velocity, normal) {
     // split to normal and tangential
     var velNorm = normal.times(velocity.dot(normal));
+    var testNormLen = velNorm.length();
     var velTan = velocity.minus(velNorm);
+    var testTanLen = velTan.length();
     return { n: velNorm, t: velTan };
   },
   createMass: function(movable, velocity) {
@@ -168,13 +248,19 @@ Physics.prototype = {
     if (mass2.movable) {
       var a0 = mass1.velN.times((2 * mass1.m) / (mass1.m + mass2.m));
       var a1 = mass2.velN.times((2 * mass2.m) / (mass1.m + mass2.m));
-      var v1s = a0.plus(a1).minus(mass1.velN);
-      var v2s = a0.plus(a1).minus(mass2.velN);
-      var newV1 = v1s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
-      var newV2 = v2s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
+      var v1Norm = a0.plus(a1).minus(mass1.velN);
+      var v2Norm = a0.plus(a1).minus(mass2.velN);
+      var newV1 = v1Norm
+        .plus(mass1.velT)
+        .times(mass1.rigidity * mass2.rigidity);
+      var newV2 = v2Norm
+        .plus(mass1.velT)
+        .times(mass1.rigidity * mass2.rigidity);
     } else {
-      var v1s = mass1.velN.times(-1);
-      var newV1 = v1s.plus(mass1.velT).times(mass1.rigidity * mass2.rigidity);
+      var v1Norm = mass1.velN.times(-1);
+      var newV1 = v1Norm
+        .plus(mass1.velT)
+        .times(mass1.rigidity * mass2.rigidity);
       var newV2 = new Geometry.Vector(0, 0, 0);
     }
     return { v1: newV1, v2: newV2 };
