@@ -150,10 +150,20 @@ Physics.prototype = {
 
     // reset last position
     dist = Math.abs(distance);
+    var test = newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001);
+
     var newLastPosition = newLine.a.plus(
-      newLine.dir.times(newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001))
+      newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001)
     );
     movable.dynamic.lastPosition = newLastPosition.toArray();
+
+    // both above plane
+    var distance1 = plane.normal.dot(newPos) - plane.c;
+    var distance2 = plane.normal.dot(newLastPosition) - plane.c;
+
+    if (distance1 < 0 || distance2 < 0) {
+      var stop = 9;
+    }
 
     if (newVel.length() < 0.2 && dist < 0.001) {
       movable.dynamic.status = DynamicKind.STABLE;
