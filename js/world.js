@@ -52,10 +52,24 @@ var WorldService = function() {
       this.drawChild(item, matrix);
     });
     // physics
+    if (imgFlag) {
+      imageCounter++;
+      if (imageCounter == 225) {
+        var stopFlag = 130;
+      }
+    }
     var physic = new Physics(this.getItems());
     physic.setMovables();
     physic.setObstacles();
     physic.checkCollision();
+    if (gPlane) {
+      var id = items[5].physics.id;
+      if (
+        !physic.isAbove(gPlane, new Geometry.Vector(items[5].dynamic.position))
+      ) {
+        var stopFlag = 120;
+      }
+    }
     physic = null;
   };
 

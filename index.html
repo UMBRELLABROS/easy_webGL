@@ -78,6 +78,11 @@
 
   <script>
     "use scrict";
+
+    // DEBUG
+    var imageCounter=0;
+    var imgFlag=false;
+
     // Part 1 (getContext)
     // create canvas and gl(webGL) 
     var div = $('canvas_container');
@@ -202,6 +207,7 @@
       ball9.dynamic.acceleration = [valueX,valueY,valueZ];
       ball9a.dynamic.acceleration = [valueX,valueY,valueZ];
       ball9b.dynamic.acceleration = [valueX,valueY,valueZ];
+      imgFlag=true;
     }
 
     function lightPos(){

@@ -81,6 +81,9 @@ Physics.prototype = {
     });
   },
   checkSingleCollision: function(movable) {
+    if (movable.physics.id == 3 && imageCounter == 225) {
+      var stopFlag = 455;
+    }
     movable.polygonObstacles.forEach(polygon => {
       if (movable.sphere) {
         var distanceBefore =
