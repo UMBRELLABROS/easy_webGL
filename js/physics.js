@@ -1,6 +1,8 @@
 "use strict;";
 
+// DEBUG
 var startDebug = false;
+var gPlane;
 
 var Physics = function(items) {
   this.items = [];
@@ -39,6 +41,12 @@ Physics.prototype = {
         } else {
           // check direction
           // add only polygons
+          if (!gPlane) {
+            gPlane = new Geometry.Plane(
+              obstacle.polygons[0].plane.normal,
+              obstacle.polygons[0].plane.c + 0.05
+            );
+          }
           obstacle.polygons.forEach(polygon => {
             if (polygon.plane.normal.dot(movableDirection) < 0) {
               polygon.rigidity = obstacle.physics.rigidity;
@@ -48,6 +56,22 @@ Physics.prototype = {
         }
       }
     });
+    // prüfen, ob PLane dabei ist.
+    if (movable.physics.id == 3 && movable.dynamic.velocity[1] < 0) {
+      if (gPlane && !this.isAbove(gPlane, movable.dynamic.position)) {
+        var wwwer = 90;
+      }
+
+      var testPlane = false;
+      movable.polygonObstacles.forEach(polygon => {
+        if (polygon.plane.normal.x == gPlane.normal.x) {
+          testPlane = true;
+        }
+      });
+      if (!testPlane) {
+        var wwwer = 90;
+      }
+    }
   },
   checkCollision: function() {
     this.movables.forEach(movable => {
@@ -118,6 +142,12 @@ Physics.prototype = {
   calcNewDirectionWithPolygon: function(movable, polygon, distance) {
     if (movable.physics.id == 3) {
       var test = 9;
+      if (!this.isAbove(gPlane, movable.dynamic.position)) {
+        var newP = 90;
+      }
+      if (this.isAbove(gPlane, movable.dynamic.lastPosition)) {
+        var newP = 91;
+      }
     }
 
     // shift plane by radius
@@ -165,6 +195,15 @@ Physics.prototype = {
       var stop = 9;
     }
 
+    if (movable.physics.id == 3) {
+      if (this.isAbove(gPlane, movable.dynamic.position)) {
+        var newP = 80;
+      }
+      if (this.isAbove(gPlane, movable.dynamic.lastPosition)) {
+        var newP = 81;
+      }
+    }
+
     if (newVel.length() < 0.2 && dist < 0.001) {
       movable.dynamic.status = DynamicKind.STABLE;
     }
@@ -172,6 +211,12 @@ Physics.prototype = {
   calcNewDirectionWithSphere: function(movable, obstacle, distance) {
     if (movable.physics.id == 3) {
       var test = 9;
+      if (this.isAbove(gPlane, movable.dynamic.position)) {
+        var newP = 90;
+      }
+      if (this.isAbove(gPlane, movable.dynamic.lastPosition)) {
+        var newP = 91;
+      }
     }
 
     var sphere = obstacle.sphere;
@@ -232,6 +277,15 @@ Physics.prototype = {
     );
     movable.dynamic.lastPosition = newLastPosition.toArray();
 
+    if (movable.physics.id == 3) {
+      if (this.isAbove(gPlane, movable.dynamic.position)) {
+        var newP = 90;
+      }
+      if (this.isAbove(gPlane, movable.dynamic.lastPosition)) {
+        var newP = 91;
+      }
+    }
+
     if (newVels.v1.length() < 0.2 && dist < 0.001) {
       movable.dynamic.status = DynamicKind.STABLE;
     }
@@ -274,5 +328,9 @@ Physics.prototype = {
       var newV2 = new Geometry.Vector(0, 0, 0);
     }
     return { v1: newV1, v2: newV2 };
+  },
+  isAbove: function(plane, p) {
+    var dist1 = plane.normal.dot(p) - plane.c;
+    return dist1 >= 0;
   }
 };
