@@ -81,7 +81,7 @@ Physics.prototype = {
     });
   },
   checkSingleCollision: function(movable) {
-    if (movable.physics.id == 3 && imageCounter == 225) {
+    if (movable.physics.id == 3 && imageCounter == 227) {
       var stopFlag = 455;
     }
     movable.polygonObstacles.forEach(polygon => {
@@ -105,6 +105,7 @@ Physics.prototype = {
               this.calcNewDirectionWithPolygon(movable, polygon, distanceAfter);
               this.setMovableObstacles(movable);
               this.checkSingleCollision(movable);
+              return;
             }
           }
         }
@@ -125,17 +126,9 @@ Physics.prototype = {
 
         if (distanceAfter <= 0) {
           this.calcNewDirectionWithSphere(movable, obstacle, distanceAfter);
-
-          // DEBUG
-          if (movable.physics.id == 3) {
-            startDebug = true;
-            var list = $("debuglist");
-            var elem = dcE("li");
-            elem.innerHTML = "Depth Check";
-            //list.appendChild(elem);
-          }
           this.setMovableObstacles(movable);
           this.checkSingleCollision(movable);
+          return;
         }
       } else {
         // polygon
@@ -188,7 +181,7 @@ Physics.prototype = {
     var newLastPosition = newLine.a.plus(
       newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001)
     );
-    movable.dynamic.lastPosition = newLastPosition.toArray();
+    //movable.dynamic.lastPosition = newLastPosition.toArray();
 
     // both above plane
     var distance1 = plane.normal.dot(newPos) - plane.c;
@@ -278,7 +271,7 @@ Physics.prototype = {
     var newLastPosition = newLine.a.plus(
       newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001)
     );
-    movable.dynamic.lastPosition = newLastPosition.toArray();
+    //movable.dynamic.lastPosition = newLastPosition.toArray();
 
     if (movable.physics.id == 3) {
       if (this.isAbove(gPlane, movable.dynamic.position)) {

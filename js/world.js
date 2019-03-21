@@ -54,7 +54,7 @@ var WorldService = function() {
     // physics
     if (imgFlag) {
       imageCounter++;
-      if (imageCounter == 225) {
+      if (imageCounter == 227) {
         var stopFlag = 130;
       }
     }
