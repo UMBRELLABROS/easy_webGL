@@ -59,7 +59,7 @@ Geometry.plane = function(options) {
   return Geometry.fromPolygons(
     [
       [[2, 6, 7, 3], [0, +1, 0], [1, 0, 2, 3]],
-      [[0, 2, 3, 1], [0, 0, -1], [1, 0, 2, 3]]
+      [[4, 0, 1, 5], [0, -1, 0], [1, 0, 2, 3]]
     ].map(function(info) {
       return new Geometry.Polygon(
         info[0].map(function(i, id) {

@@ -100,7 +100,7 @@
     var cube = Geometry.cube({radius:20});
     var sphere = Geometry.sphere({radius:0.05,stacks:15,slices:15});
     var sphereLight = Geometry.sphere({radius:0.05});
-    var plane = Geometry.plane({radius:1});
+    var plane = Geometry.plane({radius:1.4});
     var plane2 = Geometry.plane({radius:0.2});
     var plane3 = Geometry.plane({radius:0.2});
    
@@ -152,18 +152,20 @@
       physics:{movable:true,rigidity:0.90,weight:0.2, id:1}
       
     });
+    ball9.dynamic.id=1;
     var ball9a = new PropService({
       geometry:sphere,     
       image : "misc/9ball.jpg",
-      position: [-.4, 1.6,0.2],   
+      position: [.7, 1.8,0.1],   
       shininess:20,
       physics:{movable:true,rigidity:0.90,weight:0.2, id:2}
       
     });
+    
     var ball9b = new PropService({
       geometry:sphere,     
       image : "misc/9ball.jpg",
-      position: [-.0, 1.05,-0.0],   
+      position: [-.0, 1.05,0.02],   
       shininess:20,
       physics:{movable:true,rigidity:0.90, weight:0.2, id:3}
       
@@ -185,7 +187,7 @@
     propC.push(surface3); 
     propC.push(surface4); 
     propC.push(ball9);    
-    //propC.push(ball9a);   
+    propC.push(ball9a);   
     propC.push(ball9b);   
     propC.push(propLight);
 

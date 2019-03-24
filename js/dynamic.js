@@ -1,6 +1,7 @@
 "use strict;";
 var Dynamic = function() {
   this.active = false;
+  this.id = -1;
 
   this.status = DynamicKind.FREE;
 
@@ -23,6 +24,10 @@ var Dynamic = function() {
 Dynamic.prototype = {
   buildMatrix: function(deltaTime) {
     var matrix = m4.identity();
+
+    if (this.id == 1) {
+      var errorDynamic = 45;
+    }
 
     var a =
       this.status == DynamicKind.GROUNDED

@@ -169,13 +169,15 @@ Physics.prototype = {
 
     // shorten newPos
     var newLine = new Geometry.Line.fromPoints(intersec, newPos);
-    newPos = newLine.a.plus(
-      newLine.dir.times(movable.physics.rigidity * polygon.rigidity)
+    var quant = vel.length() > 0.5 ? 1 : 0.9;
+    var dist = newLine.dir.times(
+      movable.physics.rigidity * polygon.rigidity * quant
     );
+    newPos = newLine.a.plus(dist);
     movable.dynamic.position = newPos.toArray();
 
     // reset last position
-    dist = Math.abs(distance);
+    dist = dist.length();
     var test = newLine.dir.times(dist < 0.001 ? dist / 2 : 0.001);
 
     var newLastPosition = newLine.a.plus(
@@ -200,7 +202,7 @@ Physics.prototype = {
       }
     }
 
-    if (newVel.length() < 0.2 && dist < 0.001) {
+    if (newVel.length() < 0.2 && dist < 0.002) {
       movable.dynamic.status = DynamicKind.STABLE;
     }
   },
@@ -282,7 +284,7 @@ Physics.prototype = {
       }
     }
 
-    if (newVels.v1.length() < 0.2 && dist < 0.001) {
+    if (newVels.v1.length() < 0.2 && dist < 0.002) {
       movable.dynamic.status = DynamicKind.STABLE;
     }
   },
@@ -310,11 +312,12 @@ Physics.prototype = {
       var a1 = mass2.velN.times((2 * mass2.m) / (mass1.m + mass2.m));
       var v1Norm = a0.plus(a1).minus(mass1.velN);
       var v2Norm = a0.plus(a1).minus(mass2.velN);
+      var quant = mass1.velN.length() > 0.5 ? 1 : 0.5;
       var newV1 = v1Norm
         .plus(mass1.velT)
-        .times(mass1.rigidity * mass2.rigidity);
+        .times(mass1.rigidity * mass2.rigidity * quant);
       var newV2 = v2Norm
-        .plus(mass1.velT)
+        .plus(mass2.velT)
         .times(mass1.rigidity * mass2.rigidity);
     } else {
       var v1Norm = mass1.velN.times(-1);
