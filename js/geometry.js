@@ -48,6 +48,88 @@ Geometry.buildDataCube = function(polygons) {
   };
 };
 
+Geometry.terrain = function(options) {
+  // generate coordinates
+  var r = options.radius;
+  var rows = options.rows;
+  var cols = options.cols;
+  var shifts = new Array((rows + 1) * (cols + 1));
+  var shP = options.shiftPoints;
+  shP.forEach(point => {
+    var index = point[0] + point[1] * (rows + 1);
+    shifts[index] = new Geometry.Vector(point[2]);
+  });
+  var polygons = [];
+
+  // set coords
+  coords = [];
+  for (var y = 0; y <= rows; y++) {
+    for (var x = 0; x <= cols; x++) {
+      var index = x + y * (rows + 1);
+      var v = new Geometry.Vector(
+        r * ((2 * x) / cols - 1),
+        0,
+        r * (-(2 * y) / rows + 1)
+      );
+      if (shifts[index]) {
+        v = v.plus(shifts[index]);
+      }
+      coords.push(v);
+    }
+  }
+
+  // generates (rows * cols) tiles with one or two polygons
+  for (var y = 0; y < rows; y++) {
+    for (var x = 0; x < cols; x++) {
+      var vectors = [0, 2, 3, 1].map(val => {
+        return coords[x + !!(val & 2) + (y + !!(val & 1)) * (rows + 1)];
+      });
+      var even = true;
+      vectors.forEach(vector => {
+        if (vector.y != 0) even = false;
+      });
+      var uvs = [0, 2, 3, 1].map(val => {
+        return new Geometry.UV(
+          (x + !!(val & 2)) / cols,
+          (y + !!(val & 1)) / rows
+        );
+      });
+      // calc normals
+      var normals = [0, 1, 2, 3].map(index => {
+        return vectors[index].getNormal(
+          vectors[(index + 1) % 4],
+          vectors[(index + 3) % 4]
+        );
+      });
+      // generate tile
+      polygons = polygons.concat(
+        Geometry.tileSquare(vectors, normals, uvs, even)
+      );
+    }
+  }
+  return Geometry.fromPolygons(polygons, null);
+};
+
+Geometry.tileSquare = function(vectors, normals, uvs, even) {
+  var polygons = [];
+  if (even) {
+    var vertices = [0, 1, 2, 3].map(index => {
+      return new Geometry.Vertex(vectors[index], normals[index], uvs[index]);
+    });
+    polygons.push(new Geometry.Polygon(vertices, null));
+  } else {
+    var vertices = [0, 1, 3].map(index => {
+      return new Geometry.Vertex(vectors[index], normals[index], uvs[index]);
+    });
+    polygons.push(new Geometry.Polygon(vertices, null));
+    vertices = [1, 2, 3].map(index => {
+      return new Geometry.Vertex(vectors[index], normals[index], uvs[index]);
+    });
+    polygons.push(new Geometry.Polygon(vertices, null));
+  }
+  return polygons;
+};
+
 Geometry.plane = function(options) {
   options = options || {};
   var c = new Geometry.Vector(options.center || [0, 0, 0]);
@@ -58,8 +140,8 @@ Geometry.plane = function(options) {
     : [options.radius, options.radius, options.radius];
   return Geometry.fromPolygons(
     [
-      [[2, 6, 7, 3], [0, +1, 0], [1, 0, 2, 3]],
-      [[4, 0, 1, 5], [0, -1, 0], [1, 0, 2, 3]]
+      [[2, 6, 7, 3], [0, +1, 0], [1, 0, 2, 3]]
+      // [[4, 0, 1, 5], [0, -1, 0], [1, 0, 2, 3]]
     ].map(function(info) {
       return new Geometry.Polygon(
         info[0].map(function(i, id) {
@@ -228,6 +310,13 @@ Geometry.Vector.prototype = {
       this.z * a.x - this.x * a.z,
       this.x * a.y - this.y * a.x
     );
+  },
+
+  getNormal: function(a, b) {
+    return b
+      .minus(this)
+      .cross(a.minus(this))
+      .unit();
   },
 
   toArray: function() {

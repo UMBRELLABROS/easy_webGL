@@ -48,6 +48,10 @@ var Gl = {
     return program;
   },
 
+  endProgram: function(program) {
+    this.gl.deleteProgram(program);
+  },
+
   getTarget: function(newTarget) {
     var target = this.gl.ARRAY_BUFFER;
     if (newTarget == TargetKind.ELEMENT_ARRAY_BUFFER) {

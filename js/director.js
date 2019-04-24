@@ -7,6 +7,7 @@ var Director = function() {
 };
 
 var DirectorController = function(canvas) {
+  var reqFrame;
   var deltaTime = 10;
   var startTime;
   var worlds = [];
@@ -28,7 +29,16 @@ var DirectorController = function(canvas) {
 
   this.action = function() {
     Gl.setDrawModes();
-    renderLoop();
+    reqFrame = requestAnimationFrame(renderLoop);
+  };
+
+  this.end = function() {
+    window.cancelAnimationFrame(reqFrame);
+    worlds.forEach(world => {
+      world.end();
+    });
+    worlds = null;
+    Gl.gl = null;
   };
 
   var renderLoop = function(timestamp) {
@@ -38,7 +48,7 @@ var DirectorController = function(canvas) {
       render();
       startTime = timestamp;
     }
-    requestAnimationFrame(renderLoop);
+    reqFrame = requestAnimationFrame(renderLoop);
   };
 
   var render = function() {

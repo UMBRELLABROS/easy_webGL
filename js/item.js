@@ -187,7 +187,7 @@ var ItemService = function() {
           cameraPositionUniform.create(
             UniformKind.CAMERAPOSITION,
             "u_camera_position",
-            camera.position
+            camera.dynamic.position
           );
           cameraPositionUniform.dynamic = camera.dynamic;
           this.getUniforms().push(cameraPositionUniform);

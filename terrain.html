@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terrain Editor</title>
+    <link href="css/style.css" rel="stylesheet" />
+    <script src="js/gl.js"></script>
+    <script src="js/geometry.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/math.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/attribute.js"></script>
+    <script src="js/uniform.js"></script>
+    <script src="js/texture.js"></script>
+    <script src="js/program.js"></script>
+    <script src="js/baseobject.js"></script>
+    <script src="js/triangle.js"></script>
+    <script src="js/dynamic.js"></script>
+    <script src="js/item.js"></script>
+    <script src="js/scene.js"></script>
+    <script src="js/vertexshader.js"></script>
+    <script src="js/fragmentshader.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/prop.js"></script>
+    <script src="js/light.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/director.js"></script>
+
+    <style>
+      .slider-wrapper {
+        display: inline-block;
+        width: 20px;
+        height: 150px;
+        padding: 0;
+      }
+      .slider-wrapper input {
+        width: 150px;
+        height: 20px;
+        margin: 0;
+        transform-origin: 75px 75px;
+        transform: rotate(-90deg);
+      }
+    </style>
+  </head>
+
+  <body>
+    <table style="width:100%">
+      <tr>
+        <td valign="top">
+          Image:
+          <input
+            id="src"
+            type="text"
+            value="misc/golfplane.jpg"
+            onchange="loadBackgroundImage(this.value)"
+          />Terrain Radius:
+          <input
+            id="dimension"
+            type="text"
+            style="width:80px;"
+            value="1000"
+          />px<br />
+          x Cols:
+          <input id="cols" type="text" style="width:60px;" value="10" /> y Rows:
+          <input id="rows" type="text" style="width:60px;" value="10" /><br />
+
+          <canvas
+            id="terrainCanvas"
+            width="500"
+            height="500"
+            style="background-color: antiquewhite"
+            onmousedown="pick(this,event)"
+            onmousemove="move(this,event)"
+            onmouseup="place(this,event)"
+          >
+          </canvas>
+        </td>
+        <td valign="top">
+          Height<br />
+          <input
+            type="text"
+            id="height"
+            value="0"
+            style="width:30px;"
+            onchange="changeHeight(this.value)"
+          /><br /><br />
+          <div class="slider-wrapper">
+            <datalist id="tickmarks">
+              <option value="-100" label="-100"> </option>
+              <option value="0" label="0"> </option>
+              <option value="100" label="100"> </option>
+            </datalist>
+
+            <input
+              id="heightSlider"
+              type="range"
+              list="tickmarks"
+              min="-500"
+              max="500"
+              value="0"
+              step="1"
+              onchange="changeHeight(this.value)"
+            />
+          </div>
+        </td>
+        <td valign="top">
+          <button onclick="parseInput()">read data</button><br />
+          <textarea id="output" rows="40" cols="30">
+[2,4,[20,0.4,0]],[3,4,[0,0.3,0]]</textarea
+          >
+        </td>
+        <td valign="top">
+          3D
+
+          <div
+            id="canvas_container"
+            style="position:relative;left: 0;margin-left: 0px;"
+          ></div>
+        </td>
+      </tr>
+    </table>
+
+    <img
+      id="image"
+      src="misc/golfplane.jpg"
+      style="position:absolute;left:-20000px;"
+    />
+
+    <script>
+      // 3D stuff
+      var director;
+      var camera1 = new Camera();
+
+      var terrain = Geometry.terrain({
+        radius: 1000,
+        rows: 10,
+        cols: 10,
+        shiftPoints: []
+      });
+      var surface = new PropService({
+        image: "misc/golfplane.jpg",
+        geometry: terrain,
+        position: [0, 0, 0]
+      });
+
+      function draw3D() {
+        if (director) {
+          director.end(); // kill programs
+          director = null;
+          setTimeout(draw3D2, 1000);
+        } else {
+          draw3D2();
+        }
+      }
+
+      function draw3D2() {
+        var div = $("canvas_container");
+        div.innerHTML = "";
+        var canvas = dcE("canvas");
+        canvas.className = "default_canvas";
+        canvas.width = div.offsetWidth;
+        canvas.height = div.offsetHeight;
+        div.appendChild(canvas);
+
+        camera1.type = CameraKind.LOOKAT;
+        camera1.dynamic.position = [0, 551, -1000];
+        camera1.dynamic.lookAt = [0, 1, 0];
+        camera1.far = 2600;
+
+        var light1 = new LightService();
+        light1.setKind(LightKind.DIRECT);
+        light1.setDirection([-0, -0.9, -0.0]);
+
+        var scene = new SceneService([surface], [light1], [camera1]);
+
+        director = new DirectorController(canvas);
+        director.addScene([scene]);
+        director.action();
+      }
+      draw3D();
+
+      var time = 0;
+      var r = Math.abs(camera1.dynamic.position[2]);
+
+      function rotateCamera() {
+        var t = time / 5000;
+        if (t > Math.abs(Math.PI * 2)) time = 0;
+
+        var x = r * Math.sin(t);
+        var z = r * Math.cos(t);
+        camera1.dynamic.position = [x, camera1.dynamic.position[1], z];
+        time += 40;
+        setTimeout("rotateCamera()", 40);
+      }
+      rotateCamera();
+
+      // control data & functions
+
+      var c = document.getElementById("terrainCanvas");
+      var ctx = c.getContext("2d");
+      var canvasHeight = ctx.canvas.clientHeight;
+      var canvasWidth = ctx.canvas.clientWidth;
+      var data = [];
+      var terrainRadius = parseInt($("dimension").value);
+      var picked; // picked item
+      var heightPicked; // picked item changing height
+      var xCols = parseInt($("cols").value);
+      var yRows = parseInt($("rows").value);
+      var standardPoints = []; // canvasUnit
+      var shiftedPoints = []; // canvasUnit
+      var img = document.getElementById("image");
+
+      function init() {
+        for (var y = 0; y <= yRows; y++) {
+          for (var x = 0; x <= xCols; x++) {
+            var point = {
+              x: (x / xCols) * canvasWidth,
+              y: 0,
+              z: (y / yRows) * canvasHeight
+            };
+            standardPoints.push(point);
+            shiftedPoints.push(null);
+          }
+        }
+      }
+
+      function parseInput() {
+        var text = '{"data":[' + $("output").value + "]}";
+        data = Object.entries(JSON.parse(text))[0][1];
+        var index;
+        for (var i = 0; i < data.length; i++) {
+          index = data[i][0] + data[i][1] * (yRows + 1);
+          var point = getCanvasCoord(data[i]);
+          shiftedPoints[index] = {
+            x: point.x,
+            y: point.y, // height
+            z: point.z
+          };
+          standardPoints[index] = null;
+        }
+        drawGrid();
+      }
+
+      function getCanvasCoord(data) {
+        var xFactor = canvasWidth / (terrainRadius * 2);
+        var yFactor = canvasHeight / (terrainRadius * 2);
+        y = data[2][1]; // heigth
+        x = (data[0] / xCols) * canvasWidth + xFactor * data[2][0];
+        z = (data[1] / yRows) * canvasHeight + yFactor * data[2][2];
+        return { x: x, y: y, z: -z };
+      }
+      function getOutputCoord(index, coord) {
+        // index = data[i][0] + data[i][1] * (yRows + 1);
+        var xFactor = canvasWidth / (terrainRadius * 2);
+        var yFactor = canvasHeight / (terrainRadius * 2);
+        var y = parseInt(index / (yRows + 1));
+        var x = index % (yRows + 1);
+        var data = { x: 0, y: 0, z: 0 };
+        data.y = coord.y;
+        data.x = (coord.x - (x / xCols) * canvasWidth) / xFactor;
+        data.z = -(coord.z - (y / yRows) * canvasHeight) / yFactor;
+        return { x: x, y: y, data: data };
+      }
+
+      init();
+      drawGrid();
+
+      function pick(canvas, event) {
+        var pos = getCursorPosition(canvas, event);
+        var found = false;
+        var index = -1;
+        picked = null;
+        // check all standard
+        for (var i = 0; i < standardPoints.length; i++) {
+          point = standardPoints[i] || shiftedPoints[i];
+          if (Math.abs(pos.x - point.x) < 4) {
+            if (Math.abs(pos.y - point.z) < 4) {
+              found = true;
+              index = i;
+              continue;
+            }
+          }
+        }
+        if (found) {
+          if (standardPoints[index] != null) {
+            var point = standardPoints[index];
+            shiftedPoints[index] = {
+              x: point.x,
+              y: point.y, // height
+              z: point.z
+            };
+            standardPoints[index] = null;
+          }
+          picked = index;
+        }
+      }
+      function move(canvas, event) {
+        if (!picked) return;
+        var pos = getCursorPosition(canvas, event);
+        shiftedPoints[picked].x = pos.x;
+        shiftedPoints[picked].z = pos.y;
+        drawGrid();
+      }
+      function place(canvas, event) {
+        heightPicked = picked;
+        picked = null;
+        drawGrid();
+        showHeight();
+        showData();
+        create3D();
+      }
+      function showData() {
+        var text = "";
+        for (var i = 0; i < shiftedPoints.length; i++) {
+          if (shiftedPoints[i]) {
+            var coord = getOutputCoord(i, shiftedPoints[i]);
+            // read rows and cols
+            text += "[" + coord.x + "," + coord.y;
+            text += ",[" + coord.data.x + ",";
+            text += coord.data.y + ",";
+            text += coord.data.z + "]],";
+          }
+        }
+        text = text.slice(0, -1); // remove last comma
+        $("output").innerHTML = text;
+      }
+      function showHeight() {
+        if (!heightPicked) return;
+        //
+        $("height").value = shiftedPoints[heightPicked].y;
+        $("heightSlider").value = shiftedPoints[heightPicked].y;
+      }
+      function changeHeight(value) {
+        shiftedPoints[heightPicked].y = value;
+        $("height").value = value;
+        showData();
+        create3D();
+      }
+
+      function create3D() {
+        // read data
+        var shifted = [];
+        for (var i = 0; i < shiftedPoints.length; i++) {
+          if (shiftedPoints[i]) {
+            var coord = getOutputCoord(i, shiftedPoints[i]);
+            var point = [coord.x, coord.y, coord.data];
+            shifted.push(point);
+          }
+        }
+        // new terrain, new surface, new director
+        terrain = Geometry.terrain({
+          radius: 1000,
+          rows: 10,
+          cols: 10,
+          shiftPoints: shifted
+        });
+        surface = new PropService({
+          image: "misc/golfplane.jpg",
+          geometry: terrain,
+          position: [0, 0, 0]
+        });
+        draw3D();
+      }
+
+      function loadBackgroundImage(src) {
+        img = document.getElementById("image");
+        img.src = src;
+      }
+
+      function getCursorPosition(canvas, event) {
+        var rect = canvas.getBoundingClientRect();
+        var x = event.clientX - rect.left;
+        var y = event.clientY - rect.top;
+        // console.log("x: " + x + " y: " + y);
+        return { x: x, y: y };
+      }
+
+      function drawGrid() {
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        if (img) {
+          ctx.drawImage(img, 0, 0, 500, 500);
+        }
+        if (true == true) {
+          for (var i = 0; i < standardPoints.length; i++) {
+            var p0 = standardPoints[i] || shiftedPoints[i];
+            ctx.beginPath();
+            ctx.arc(p0.x, p0.z, 4, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+        } else {
+          // optional: show only picked if slow performance
+          var p0 = shiftedPoints[picked];
+          ctx.beginPath();
+          ctx.arc(p0.x, p0.z, 4, 0, 2 * Math.PI);
+          ctx.stroke();
+        }
+      }
+
+      function getPointByIndex(x, y) {
+        var h = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i][0] == x && data[i][1] == y) {
+            var r = data[i][2];
+            x += r[0] / (terrainRadius * 2); // delta!
+            h = r[1];
+            y += r[2] / (terrainRadius * 2); // delta!
+          }
+        }
+        return { x: x, y: y, h: h };
+      }
+
+      function convertToCanvas(x, y) {
+        return { x: 500 * x, y: 500 * y };
+      }
+    </script>
+  </body>
+</html>
