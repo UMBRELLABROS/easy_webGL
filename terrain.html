@@ -229,6 +229,7 @@
         var text = '{"data":[' + $("output").value + "]}";
         data = Object.entries(JSON.parse(text))[0][1];
         var index;
+
         for (var i = 0; i < data.length; i++) {
           index = data[i][0] + data[i][1] * (yRows + 1);
           var point = getCanvasCoord(data[i]);
@@ -245,10 +246,10 @@
       function getCanvasCoord(data) {
         var xFactor = canvasWidth / (terrainRadius * 2);
         var yFactor = canvasHeight / (terrainRadius * 2);
-        y = data[2][1]; // heigth
         x = (data[0] / xCols) * canvasWidth + xFactor * data[2][0];
-        z = (data[1] / yRows) * canvasHeight + yFactor * data[2][2];
-        return { x: x, y: y, z: -z };
+        y = data[2][1]; // heigth
+        z = (data[1] / yRows) * canvasHeight - yFactor * data[2][2];
+        return { x: x, y: y, z: z };
       }
       function getOutputCoord(index, coord) {
         // index = data[i][0] + data[i][1] * (yRows + 1);
