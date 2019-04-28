@@ -54,10 +54,14 @@ Geometry.terrain = function(options) {
   var rows = options.rows;
   var cols = options.cols;
   var shifts = new Array((rows + 1) * (cols + 1));
-  var shP = options.shiftPoints;
-  shP.forEach(point => {
+  var rigidities = new Array(rows * cols);
+  options.shiftPoints.forEach(point => {
     var index = point[0] + point[1] * (rows + 1);
     shifts[index] = new Geometry.Vector(point[2]);
+  });
+  options.rigidities.forEach(rigidity => {
+    var index = rigidity[0] + rigidity[1] * rows;
+    rigidities[index] = rigidity[2];
   });
   var polygons = [];
 
@@ -103,14 +107,21 @@ Geometry.terrain = function(options) {
       });
       // generate tile
       polygons = polygons.concat(
-        Geometry.tileSquare(vectors, normals, uvs, even)
+        // creates polygon
+        Geometry.tileSquare(
+          vectors,
+          normals,
+          uvs,
+          even,
+          rigidities[x + y * rows]
+        )
       );
     }
   }
   return Geometry.fromPolygons(polygons, null);
 };
 
-Geometry.tileSquare = function(vectors, normals, uvs, even) {
+Geometry.tileSquare = function(vectors, normals, uvs, even, rigidity) {
   var polygons = [];
   if (even) {
     var vertices = [0, 1, 2, 3].map(index => {
@@ -127,6 +138,9 @@ Geometry.tileSquare = function(vectors, normals, uvs, even) {
     });
     polygons.push(new Geometry.Polygon(vertices, null));
   }
+  polygons.forEach(polygon => {
+    polygon.rigidity = rigidity;
+  });
   return polygons;
 };
 
@@ -370,9 +384,10 @@ Geometry.Plane.fromPoints = function(a, b, c) {
   return new Geometry.Plane(n, n.dot(a));
 };
 
-Geometry.Polygon = function(vertices, shared) {
+Geometry.Polygon = function(vertices, shared, rigidity) {
   this.vertices = vertices;
   this.verticesBase = vertices;
+  this.rigidity = rigidity;
   this.shared = shared;
   this.plane = Geometry.Plane.fromPoints(
     vertices[0].pos,
@@ -387,7 +402,7 @@ Geometry.Polygon.prototype = {
     this.vertices.forEach(vertex => {
       vertices.push(vertex.clone());
     });
-    return new Geometry.Polygon(vertices, this.shared);
+    return new Geometry.Polygon(vertices, this.shared, this.rigidity);
   },
   surrounds: function(point) {
     var l = this.vertices.length;

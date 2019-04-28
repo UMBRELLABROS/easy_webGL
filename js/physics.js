@@ -49,7 +49,10 @@ Physics.prototype = {
           }
           obstacle.polygons.forEach(polygon => {
             if (polygon.plane.normal.dot(movableDirection) < 0) {
-              polygon.rigidity = obstacle.physics.rigidity;
+              if (!polygon.rigidity) {
+                // use general rigidity
+                polygon.rigidity = obstacle.physics.rigidity;
+              }
               movable.polygonObstacles.push(polygon);
             }
           });
