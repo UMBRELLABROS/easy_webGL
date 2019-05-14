@@ -30,21 +30,53 @@
 
   <body>
     <div id="canvas_container"></div>
+    <audio src="audio/golf_driver.mp3" crossorigin="anonymous"></audio>
 
-    <p id="debug"></p>
+    <div class="slidecontainer">
+      rotate
+      <input
+        type="range"
+        min="-0.9"
+        max="0.9"
+        step="0.02"
+        value="0"
+        class="slider"
+        id="swing"
+        onchange="swing(this.value);"
+        oninput="swing(this.value);"
+      />
+      <br />
+    </div>
 
-    <br />
-    <br />
-
-    <div
-      style="position: absolute;right: 10px; top:10px; width:400px;background: #ccc;"
-    >
-      <ul id="debuglist"></ul>
+    <div>
+      View (side/front)
+      <input type="checkbox" id="view" onclick="changeView(this.checked)" />
     </div>
   </body>
 
   <script>
     "use scrict";
+
+    var audioCtx, audioElement;
+    window.addEventListener("load", function() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+      // load some sound
+      audioElement = document.querySelector("audio");
+      const track = audioCtx.createMediaElementSource(audioElement);
+      // connect our graph
+      track.connect(audioCtx.destination);
+      // if track ends
+      audioElement.addEventListener("ended", () => {}, false);
+    });
+
+    function myPlay() {
+      // check if context is in suspended state (autoplay policy)
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+      audioElement.play();
+    }
 
     // DEBUG
     var imageCounter = 0;
@@ -62,8 +94,6 @@
     title.innerHTML = document.title;
     title.className = "div_footer";
     div.appendChild(title);
-
-    var sphereLight = Geometry.sphere({ radius: 0.5 });
 
     var terrain = Geometry.terrain({
       radius: 1000,
@@ -171,12 +201,49 @@
       ]
     });
 
+    var sphereLight = Geometry.sphere({ radius: 50 });
+
+    var geoHead = Geometry.sphere({ radius: 0.12 });
+    // Body
+    var geoLowerBody = Geometry.cube({
+      dimension: { x: 0.15, y: 0.2, z: 0.25 }
+    });
+    var geoUpperBody = Geometry.cube({
+      dimension: { x: 0.18, y: 0.3, z: 0.3 }
+    });
+
+    // Arms
+    var geoShoulder = Geometry.sphere({ radius: 0.05 });
+    var geoElbow = Geometry.sphere({ radius: 0.04 });
+    var geoArm = Geometry.cube({
+      dimension: { x: 0.07, y: 0.3, z: 0.07 }
+    });
+    var geoHand = Geometry.sphere({ radius: 0.04 });
+
+    // Legs
+    var geoPelvis = Geometry.sphere({ radius: 0.1 });
+    var geoUpperLeg = Geometry.cube({
+      dimension: { x: 0.14, y: 0.35, z: 0.14 }
+    });
+    var geoKnee = Geometry.sphere({ radius: 0.07 });
+    var geoLowerLeg = Geometry.cube({
+      dimension: { x: 0.1, y: 0.5, z: 0.1 }
+    });
+
+    // golf club
+    var geoShaft = Geometry.cube({
+      dimension: { x: 0.01, y: 0.9, z: 0.01 }
+    });
+    var geoClubHead = Geometry.cube({
+      dimension: { x: 0.08, y: 0.05, z: 0.02 }
+    });
+
     var director = new DirectorController(canvas);
 
     var camera1 = new Camera();
     camera1.type = CameraKind.LOOKAT;
-    camera1.dynamic.position = [0, 1.5, -5];
-    camera1.dynamic.lookAt = [0, 1, 0];
+    camera1.dynamic.position = [500, 1.7, -502.5];
+    camera1.dynamic.lookAt = [500, 1.7, -500];
     camera1.far = 2600;
 
     var surface = new PropService({
@@ -189,13 +256,165 @@
       }
     });
 
+    // golf club
+    clubHead = new PropService({
+      geometry: geoClubHead,
+      color: [0.7, 0.7, 0.7, 1],
+      position: [0.05, -0.45, 0]
+    });
+    shaft = new PropService({
+      geometry: geoShaft,
+      color: [0.7, 0.7, 0.7, 1],
+      position: [0, -0.45, 0],
+      children: [clubHead]
+    });
+
+    // Arms
+    hands = new PropService({
+      geometry: geoHand,
+      color: [0.384, 0.339, 0.277, 1],
+      position: [0, -0.15, 0],
+      children: [shaft]
+    });
+    hands.dynamic.orientation = [-0.5, 0, 0];
+
+    rightLowerArm = new PropService({
+      geometry: geoArm,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.15, 0],
+      children: [hands]
+    });
+    leftLowerArm = new PropService({
+      geometry: geoArm,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.15, 0]
+    });
+    leftElbow = new PropService({
+      geometry: geoElbow,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.15, 0],
+      children: [leftLowerArm]
+    });
+    leftElbow.dynamic.orientation = [0, 0, -0.1];
+
+    rightElbow = new PropService({
+      geometry: geoElbow,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.15, 0],
+      children: [rightLowerArm]
+    });
+    rightElbow.dynamic.orientation = [0, 0, -0.1];
+
+    leftUpperArm = new PropService({
+      geometry: geoArm,
+      color: [0, 0.5, 1, 1],
+      position: [0, -0.15, 0],
+      children: [leftElbow]
+    });
+    rightUpperArm = new PropService({
+      geometry: geoArm,
+      color: [0, 0.5, 1, 1],
+      position: [0, -0.15, 0],
+      children: [rightElbow]
+    });
+
+    leftShoulder = new PropService({
+      geometry: geoShoulder,
+      color: [0, 0.5, 1, 1],
+      position: [0, 0.1, 0.2],
+      children: [leftUpperArm]
+    });
+    leftShoulder.dynamic.orientation = [0, 0, -0.5];
+    rightShoulder = new PropService({
+      geometry: geoShoulder,
+      color: [0, 0.5, 1, 1],
+      position: [0, 0.1, -0.2],
+      children: [rightUpperArm]
+    });
+    rightShoulder.dynamic.orientation = [0, 0, -0.5];
+
+    // Legs
+    rightLowerLeg = new PropService({
+      geometry: geoLowerLeg,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.2, 0]
+    });
+    leftLowerLeg = new PropService({
+      geometry: geoLowerLeg,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.2, 0]
+    });
+    rightKnee = new PropService({
+      geometry: geoKnee,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.2, 0],
+      children: [rightLowerLeg]
+    });
+    rightKnee.dynamic.orientation = [0, 0, 0.2];
+    leftKnee = new PropService({
+      geometry: geoKnee,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0, -0.2, 0],
+      children: [leftLowerLeg]
+    });
+    leftKnee.dynamic.orientation = [0, 0, 0.2];
+
+    rightUpperLeg = new PropService({
+      geometry: geoUpperLeg,
+      color: [0, 0, 0, 1],
+      position: [0, -0.25, 0],
+      children: [rightKnee]
+    });
+    leftUpperLeg = new PropService({
+      geometry: geoUpperLeg,
+      color: [0, 0, 0, 1],
+      position: [0, -0.25, 0],
+      children: [leftKnee]
+    });
+
+    rightPelvis = new PropService({
+      geometry: geoPelvis,
+      color: [0, 0, 0, 1],
+      position: [-0.03, -0.15, -0.08],
+      children: [rightUpperLeg]
+    });
+    rightPelvis.dynamic.orientation = [0, 0, -0.1];
+    leftPelvis = new PropService({
+      geometry: geoPelvis,
+      color: [0, 0, 0, 1],
+      position: [-0.03, -0.15, 0.08],
+      children: [leftUpperLeg]
+    });
+    leftPelvis.dynamic.orientation = [0, 0, -0.1];
+
+    head = new PropService({
+      geometry: geoHead,
+      color: [0.98, 0.84, 0.83, 1],
+      position: [0.1, 0.25, 0]
+    });
+
+    // Body
+    upperBody = new PropService({
+      geometry: geoUpperBody,
+      color: [0, 0.5, 1, 1],
+      position: [0, 0.25, 0],
+      children: [leftShoulder, rightShoulder, head]
+    });
+
+    base = new PropService({
+      geometry: geoLowerBody,
+      color: [0, 0.5, 1, 1],
+      position: [500, 1, -500],
+      children: [upperBody, rightPelvis, leftPelvis]
+    });
+
     var light1 = new LightService();
     light1.setKind(LightKind.DIRECT);
-    light1.setDirection([-0, -0.9, -0.0]);
+    light1.setDirection([0, -0.9, 0.7]);
 
     var light2 = new LightService();
     light2.setKind(LightKind.POINT);
-    light2.position = [300, 1000, 500];
+    light2.position = [300, 1000, -900];
     propLight = new PropService({
       geometry: sphereLight,
       color: [1, 1, 1, 1],
@@ -204,6 +423,7 @@
 
     var propC = [];
     propC.push(surface);
+    propC.push(base);
     propC.push(propLight);
 
     var scene = new SceneService(propC, [light1, light2], [camera1]);
@@ -216,13 +436,66 @@
     function rotateCamera() {
       var t = time / 5000;
       if (t > Math.abs(Math.PI * 2)) time = 0;
-      var r = 1500;
-      var x = r * Math.sin(t);
-      var z = r * Math.cos(t);
-      camera1.dynamic.position = [x, 900, z];
+      var r = 4;
+      var x = r * Math.sin(t) + 500;
+      var z = r * Math.cos(t) - 500;
+      camera1.dynamic.position = [x, 2.75, z];
       time += 40;
       setTimeout("rotateCamera()", 40);
     }
-    rotateCamera();
+    //rotateCamera();
+
+    function swing(valueY) {
+      base.dynamic.orientation = [0, valueY, 0];
+      upperBody.dynamic.orientation = [0, valueY * 0.7, 0];
+      // Arms
+      rightShoulder.dynamic.orientation = [
+        0.26,
+        0,
+        -0.3 - Math.abs(valueY) / 1
+      ];
+      rightElbow.dynamic.orientation = [
+        0.2 + Math.abs(valueY) / 1,
+        0.4,
+        -0.1 - Math.abs(valueY) / 1
+      ];
+
+      leftShoulder.dynamic.orientation = [
+        -0.26,
+        0,
+        -0.3 - Math.abs(valueY) / 1
+      ];
+      leftElbow.dynamic.orientation = [
+        -0.2 - +Math.abs(valueY) / 1,
+        -0.4,
+        -0.1 - Math.abs(valueY) / 1
+      ];
+      hands.dynamic.orientation = [
+        -0.5 + Math.abs(valueY) / 1,
+        0,
+        -Math.abs(valueY) / 1
+      ];
+
+      // Legs
+      rightPelvis.dynamic.orientation = [0, -valueY * 0.7, -0.1 + valueY / 8];
+      leftPelvis.dynamic.orientation = [0, -valueY * 0.7, -0.1 - valueY / 8];
+      if (valueY > 0 && !played) {
+        myPlay();
+        played = true;
+      }
+      if (valueY < 0 && played) {
+        played = false;
+      }
+    }
+    played = false;
+    swing(0);
+
+    function changeView(value) {
+      if (value) {
+        camera1.dynamic.position = [502.5, 1.7, -500];
+      } else {
+        camera1.dynamic.position = [500, 1.7, -502.5];
+      }
+    }
   </script>
 </html>

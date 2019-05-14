@@ -55,7 +55,7 @@ var WorldService = function() {
   this.draw = function(deltaTime) {
     this.getItems().forEach(item => {
       var matrix = item.draw(deltaTime, null);
-      this.drawChild(item, matrix);
+      this.drawChild(item, matrix, deltaTime);
     });
     // physics
     var physic = new Physics(this.getItems());
@@ -65,10 +65,10 @@ var WorldService = function() {
     physic = null;
   };
 
-  this.drawChild = function(item, parentMatrix) {
+  this.drawChild = function(item, parentMatrix, deltaTime) {
     item.children.forEach(child => {
       var matrix = child.draw(deltaTime, parentMatrix);
-      this.drawChild(child, matrix);
+      this.drawChild(child, matrix, deltaTime);
     });
   };
 };

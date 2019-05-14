@@ -184,6 +184,7 @@ Geometry.cube = function(options) {
     : options.radius.length
     ? options.radius
     : [options.radius, options.radius, options.radius];
+  var dimension = !options.dimension ? { x: 1, y: 1, z: 1 } : options.dimension;
   return Geometry.fromPolygons(
     [
       [[4, 6, 2, 0], [-1, 0, 0], [1, 0, 2, 3]],
@@ -196,9 +197,9 @@ Geometry.cube = function(options) {
       return new Geometry.Polygon(
         info[0].map(function(i, id) {
           var pos = new Geometry.Vector(
-            c.x + r[0] * (2 * !!(i & 1) - 1),
-            c.y + r[1] * (2 * !!(i & 2) - 1),
-            c.z + r[2] * (2 * !!(i & 4) - 1)
+            c.x + (dimension.x / 2) * r[0] * (2 * !!(i & 1) - 1),
+            c.y + (dimension.y / 2) * r[1] * (2 * !!(i & 2) - 1),
+            c.z + (dimension.z / 2) * r[2] * (2 * !!(i & 4) - 1)
           );
           var uv = new Geometry.UV(
             1 * !!(info[2][id] & 2),
